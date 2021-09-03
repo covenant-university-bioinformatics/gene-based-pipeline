@@ -28,14 +28,14 @@ binary_dir="."
 gwas_summary=$1;
 population=$2; #  {afr, amr, eur, eas, sas}
 synonym=$3;  # Accounting for synonymous SNP IDs
-#### synonyms=0 -- > suppress automatically loading, to speed up the process
+#### synonyms=No -- > suppress automatically loading, to speed up the process
 #### synonym-dup=drop  -->  SNPs that have multiple synonyms in the data are removed from the analysis
 #### synonym-dup=drop-dup -->  for each synonym entry only the first listed in the synonym file is retained;
 #### synonym-dup=skip ---> the SNPs are left in the data and the synonym entry in the synonym file is skipped.
 #### synonym-dup=skip-dup --->  the genotype data for all synonymous SNPs is retained.
-####  if not provided i.e NA --> same as skip
+#### if not provided i.e NA --> same as skip
 
-if [[ "$synonym" -eq "0" ]]; then
+if [[ "$synonym" -eq " " ]]; then
   synonym=Default;
 fi
 
@@ -60,8 +60,9 @@ output_prefix=Testing_gene_set;
 
 
 ##### $gwas_summary contains full path to inpput GWAS Summary file
-magma --annotate --snp-loc $gwas_summary --gene-loc ${input_dir}/NCBI/NCBI37.3.gene.loc \
---out ${output_dir}/$output_prefix;
+## Tow output files: 1- ${output_prefix}.genes.raw 2- ${output_prefix}.genes.annot
+magma --annotate --snp-loc $gwas_summary --gene-loc ${binary_dir}/NCBI/NCBI37.3.gene.loc \
+--out ${output_dir}/$output_prefix; ## NCBI to binary_dir
 
 
 ###############Gene-based MAGMA
@@ -70,39 +71,40 @@ magma --annotate --snp-loc $gwas_summary --gene-loc ${input_dir}/NCBI/NCBI37.3.g
 ### 2- SNPs' pvalues  are provided.
 ### synonym-dup modifier
 
+## Oupt file ---> ${output_prefix}.genes.out
 ### senario 2
-if [[ "$synonym" == "0" ]]; then
-magma --bfile ${input_dir}/g1000/g1000_$population synonyms=0 \
+if [[ "$synonym" == "No" ]]; then
+magma --bfile ${binary_dir}/g1000/g1000_$population synonyms=0 \
 --gene-annot ${output_dir}/${output_prefix}.genes.annot \
 --pval $gwas_summary ncol=N \
 --gene-settings adap-permp=10000 \
 --out ${output_dir}/$output_prefix;
 elif  [[ "$synonym" == "drop" ]]; then
-  magma --bfile ${input_dir}/g1000/g1000_$population synonym-dup=drop \
+  magma --bfile ${binary_dir}/g1000/g1000_$population synonym-dup=drop \
   --gene-annot ${output_dir}/${output_prefix}.genes.annot \
   --pval $gwas_summary ncol=N \
   --gene-settings adap-permp=10000 \
   --out ${output_dir}/$output_prefix;
 elif  [[ "$synonym" == "drop-dup" ]]; then
-  magma --bfile ${input_dir}/g1000/g1000_$population synonym-dup=drop-dup \
+  magma --bfile ${binary_dir}/g1000/g1000_$population synonym-dup=drop-dup \
   --gene-annot ${output_dir}/${output_prefix}.genes.annot \
   --pval $gwas_summary ncol=N \
   --gene-settings adap-permp=10000 \
   --out ${output_dir}/$output_prefix;
 elif  [[ "$synonym" == "skip" ]]; then
-  magma --bfile ${input_dir}/g1000/g1000_$population synonym-dup=skip \
+  magma --bfile ${binary_dir}/g1000/g1000_$population synonym-dup=skip \
   --gene-annot ${output_dir}/${output_prefix}.genes.annot \
   --pval $gwas_summary ncol=N \
   --gene-settings adap-permp=10000 \
   --out ${output_dir}/$output_prefix;
 elif  [[ "$synonym" == "skip-dup" ]]; then
-  magma --bfile ${input_dir}/g1000/g1000_$population synonym-dup=skip-dup \
+  magma --bfile ${binary_dir}/g1000/g1000_$population synonym-dup=skip-dup \
   --gene-annot ${output_dir}/${output_prefix}.genes.annot \
   --pval $gwas_summary ncol=N \
   --gene-settings adap-permp=10000 \
   --out ${output_dir}/$output_prefix;
 else
-  magma --bfile ${input_dir}/g1000/g1000_$population  \
+  magma --bfile ${binary_dir}/g1000/g1000_$population  \
   --gene-annot ${output_dir}/${output_prefix}.genes.annot \
   --pval $gwas_summary ncol=N \
   --gene-settings adap-permp=10000 \
@@ -122,22 +124,33 @@ fi
 #################### eQTL networks analysis
 ## col indicating the index for the gene ID column and gene-set name column respectively
 
-#### 1. synapse
-magma --gene-results ${output_dir}/${output_prefix}.genes.raw --set-annot ${input_dir}/geneSets/synapse.sets col=1,2 --out ${output_dir}/synapse
-#plot
-Rscript --vanilla ${binary_dir}/plots.R ${output_dir}/synapse.gsa.out ${input_dir}/geneSets/synapse_clusters.index  ${output_dir}/synapse
+#### 1. synapse  ---> output file -->synapse.gsa.out
+magma --gene-results ${output_dir}/${output_prefix}.genes.raw --set-annot ${binary_dir}/geneSets/synapse.sets col=1,2 --out ${output_dir}/synapse
+#plot  ---> output file -->synapse.svg
+Rscript --vanilla ${binary_dir}/plots.R ${output_dir}/synapse.gsa.out ${binary_dir}/geneSets/synapse_clusters.index  ${output_dir}/synapse
 
-#### 2. glia-astrocytes.sets
-magma --gene-results ${output_dir}/${output_prefix}.genes.raw --set-annot ${input_dir}/geneSets/glia-astrocytes.sets col=1,2 --out ${output_dir}/glia-astrocytes
-#plot
-Rscript --vanilla ${binary_dir}/plots.R ${output_dir}/glia-astrocytes.gsa.out ${input_dir}/geneSets/glia-astrocytes_clusters.index  ${output_dir}/glia-astrocytes
+#### 2. glia-astrocytes.sets  ---> output file -->glia-astrocytes.gsa.out
+magma --gene-results ${output_dir}/${output_prefix}.genes.raw --set-annot ${binary_dir}/geneSets/glia-astrocytes.sets col=1,2 --out ${output_dir}/glia-astrocytes
+#plot  ---> output file -->glia-astrocytes.svg
+Rscript --vanilla ${binary_dir}/plots.R ${output_dir}/glia-astrocytes.gsa.out ${binary_dir}/geneSets/glia-astrocytes_clusters.index  ${output_dir}/glia-astrocytes
 
-#### 3. glia-microglia.sets
-magma --gene-results ${output_dir}/${output_prefix}.genes.raw --set-annot ${input_dir}/geneSets/glia-microglia.sets col=1,2 --out ${output_dir}/glia-microglia
-#plot
-Rscript --vanilla ${binary_dir}/plots.R ${output_dir}/glia-microglia.gsa.out ${input_dir}/geneSets/glia-microglia_clusters.index  ${output_dir}/glia-microglia
+#### 3. glia-microglia.sets  ---> output file -->glia-microglia.gsa.out
+magma --gene-results ${output_dir}/${output_prefix}.genes.raw --set-annot ${binary_dir}/geneSets/glia-microglia.sets col=1,2 --out ${output_dir}/glia-microglia
+#plot  ---> output file -->glia-microglia.svg
+Rscript --vanilla ${binary_dir}/plots.R ${output_dir}/glia-microglia.gsa.out ${binary_dir}/geneSets/glia-microglia_clusters.index  ${output_dir}/glia-microglia
 
-#### 4. glia-oligodendrocytes.sets
-magma --gene-results ${output_dir}/${output_prefix}.genes.raw --set-annot ${input_dir}/geneSets/glia-oligodendrocytes.sets col=1,2 --out ${output_dir}/glia-oligodendrocytes
-#plot
-Rscript --vanilla ${binary_dir}/plots.R ${output_dir}/glia-oligodendrocytes.gsa.out ${input_dir}/geneSets/glia-oligodendrocytes_clusters.index  ${output_dir}/glia-oligodendrocytes
+#### 4. glia-oligodendrocytes.sets   ---> output file -->glia-oligodendrocytes.gsa.out
+magma --gene-results ${output_dir}/${output_prefix}.genes.raw --set-annot ${binary_dir}/geneSets/glia-oligodendrocytes.sets col=1,2 --out ${output_dir}/glia-oligodendrocytes
+#plot ---> output file -->glia-oligodendrocytes.svg
+Rscript --vanilla ${binary_dir}/plots.R ${output_dir}/glia-oligodendrocytes.gsa.out ${binary_dir}/geneSets/glia-oligodendrocytes_clusters.index  ${output_dir}/glia-oligodendrocytes
+
+
+
+#### Reformat gene set Output file by adding genes'
+## Oupt file ---> ${output_prefix}.genes.out i.e overwrite the file
+
+Rscript --vanilla ${binary_dir}/Genes.R ${output_dir}/${output_prefix}.genes.out ${binary_dir}/NCBI/NCBI37.3.gene.loc
+
+#### Plots input file
+### Tow plots: 1- qq.svg; 2- manhattan.svg
+Rscript --vanilla ${binary_dir}/plot_qq_manhattan.R $GWAS_summary $output_dir

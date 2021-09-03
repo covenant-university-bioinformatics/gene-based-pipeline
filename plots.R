@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 # To run it
-###Rscript --vanilla plota.R $eMAGMA_output $networks_annotation plot_name
+###Rscript --vanilla plots.R $eMAGMA_output $networks_annotation plot_name
 
 # test if there is at least one argument: if not, return an error
 args = commandArgs(trailingOnly=TRUE)
@@ -49,8 +49,9 @@ plots=function(gsa.out=gsa.out, indexes=indexes,output=output){
       par(mar=c(4,21,0,1) , oma=c(0,0,0,0))
       p<- barplot(bars[pvalues_sorted],horiz = TRUE,col="darkblue", names.arg=y_axis1[pvalues_sorted],las=2,
       panel.last=ggbg2(), xlab="pvalue")
-      #text(bars[pvalues_sorted]-min(bars[pvalues_sorted]), p ,y_axis2[pvalues_sorted] , pos=4,col="red",font=2)#,cex = 1.5 )
       dev.off()
+      eMAGMA_output[,1]=y_axis1
+      write.table(eMAGMA_output,file= gsa.out, row.names=FALSE,sep="\t", quote = FALSE)
 
     }
 
