@@ -1,0 +1,19 @@
+gene set ID	gene set name
+func_gs1	Cell adhesion and trans-synaptic signaling
+func_gs2	Cell metabolism
+func_gs3	Endocytosis
+func_gs4	Excitability
+func_gs5	Exocytosis
+func_gs6	G-protein-coupled receptor signaling
+func_gs7	G-protein relay
+func_gs8	Intracellular signal transduction
+func_gs9	Intracellular trafficking
+func_gs10	Ion balance/transport
+func_gs11	Ligand-gated ion channel signaling
+func_gs12	Neurotransmitter metabolism
+func_gs13	Peptide/neurotrophin signals
+func_gs14	Protein cluster
+func_gs15	"RNA and protein synthesis, folding and breakdown"
+func_gs16	Structural plasticity
+func_gs17	Tyrosine kinase signaling
+func_gs18	Unassigned
