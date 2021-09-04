@@ -22,7 +22,7 @@ set -x	## To debug
 
 
 input_dir=".";
-output_dir=".";
+output_dir="./Output";
 binary_dir="."
 
 gwas_summary=$1;
@@ -38,9 +38,7 @@ synonym=$3;  # Accounting for synonymous SNP IDs
 if [[ "$synonym" -eq " " ]]; then
   synonym=Default;
 fi
-
-
-output_prefix=Testing_gene_set;
+output_prefix=Gene_set;  ####
 
 #### Input GWAS Summary columns
 ## 1- SNP-ID its name SNP
@@ -61,7 +59,20 @@ output_prefix=Testing_gene_set;
 
 ##### $gwas_summary contains full path to inpput GWAS Summary file
 ## Tow output files: 1- ${output_prefix}.genes.raw 2- ${output_prefix}.genes.annot
-magma --annotate --snp-loc $gwas_summary --gene-loc ${binary_dir}/NCBI/NCBI37.3.gene.loc \
+#### Parameters:
+## 1. Adding an annotation window around genes in kb
+up_window=$4
+down_window=$5
+
+if [[ "$up_window" -eq " " ]]; then
+  up_window=0;
+fi
+
+if [[ "down_window" -eq " " ]]; then
+  down_window=0;
+fi
+
+magma --annotate window=${up_window},${down_window} --snp-loc $gwas_summary --gene-loc ${binary_dir}/NCBI/NCBI37.3.gene.loc \
 --out ${output_dir}/$output_prefix; ## NCBI to binary_dir
 
 
@@ -73,6 +84,14 @@ magma --annotate --snp-loc $gwas_summary --gene-loc ${binary_dir}/NCBI/NCBI37.3.
 
 ## Oupt file ---> ${output_prefix}.genes.out
 ### senario 2
+
+##### Parameters:
+## 1. gene-model ----> Specifying the gene analysis model
+## 2. burden ---->  Specifying burden score settings for rare variants
+
+
+
+
 if [[ "$synonym" == "No" ]]; then
 magma --bfile ${binary_dir}/g1000/g1000_$population synonyms=0 \
 --gene-annot ${output_dir}/${output_prefix}.genes.annot \
@@ -111,38 +130,347 @@ else
   --out ${output_dir}/$output_prefix;
 fi
 
-########### Select significant genes  using the Bonferroni correction
-#### Step calculating number of genes
-#num_genes=$( expr $(wc -l ${output_dir}/$output_prefix.genes.out | cut -d ' '  -f 1 ) - 1
-#significance_level= $( expr 0.05 / $num_genes ) -------------> rewrite this usig awk
-## awk -v genes=num_genes '{if ($9<=(0.05/genes)) print $0}' ${output_dir}/$output_prefix.genes.out > ${output_dir}/$output_prefi_signif_genes.txt
-##awk '{if ($9<=3.8431e-5) print $0}' ${output_dir}/${output_prefix}.genes.out > ${output_dir}/${output_prefix}_signif_genes.txt
+############# tissues
+#1.  Adipose_Subcutaneous
+#2.  Adipose_Visceral_Omentum
+#3.  Adrenal_Gland
+#4.  Artery_Aorta
+#5.  Artery_Coronary
+#6.  Artery_Tibial
+#7.  Brain_Amygdala
+#8.  Brain_Anterior_cingulate_cortex_BA24
+#9.  Brain_Caudate_basal_ganglia
+#10. Brain_Cerebellar_Hemisphere
+#11. Brain_Cerebellum
+#12. Brain_Cortex
+#13. Brain_Frontal_Cortex_BA9
+#14. Brain_Hippocampus
+#15. Brain_Hypothalamus
+#16. Brain_Nucleus_accumbens_basal_ganglia
+#17. Brain_Putamen_basal_ganglia
+#18. Brain_Spinal_cord_cervical_c-1
+#19. Brain_Substantia_nigra
+#20. Breast_Mammary_Tissue
+#21. Cells_EBV-transformed_lymphocytes
+#22. Colon_Sigmoid
+#23. Colon_Transverse
+#24. Esophagus_Gastroesophageal_Junction
+#25. Esophagus_Mucosa
+#26. Esophagus_Muscularis
+#27. Heart_Atrial_Appendage
+#28. Heart_Left_Ventricle
+#29. Liver
+#30. Lung
+#31. Minor_Salivary_Gland
+#32. Muscle_Skeletal
+#33. Nerve_Tibial
+#34. Ovary
+#35. Pancreas
+#36. Pituitary
+#37. Prostate
+#38. Skin_Not_Sun_Exposed_Suprapubic
+#39. Skin_Sun_Exposed_Lower_leg
+#40. Small_Intestine_Terminal_Ileum
+#41. Spleen
+#42. Stomach
+#43. Testis
+#44. Thyroid
+#45. Uterus
+#46. Vagina
+#47. Whole_Blood
+
+declare -a tissues;
+
+Brain_Cerebellum=true;
+Adipose_Subcutaneous="true";
+# Tissue 1
+if [[ "$Adipose_Subcutaneous" = "true" ]];  then
+  tissues+=("Adipose_Subcutaneous")
+fi
+
+# Tissue 2
+if [[ "$Adipose_Visceral_Omentum" = "true" ]];  then
+  tissues+=("Adipose_Visceral_Omentum")
+fi
+
+# Tissue 3
+if [[ "$Adrenal_Gland" = "true" ]];  then
+  tissues+=("Adrenal_Gland")
+fi
+
+# Tissue 4
+if [[ "$Artery_Aorta" = "true" ]];  then
+  tissues+=("Artery_Aorta")
+fi
+
+# Tissue 5
+if [[ "$Artery_Coronary" = "true" ]];  then
+  tissues+=("Artery_Coronary")
+fi
+
+# Tissue 6
+if [[ "$Artery_Tibial" = "true" ]];  then
+  tissues+=("Artery_Tibial")
+fi
+
+# Tissue 7
+if [[ "$Brain_Amygdala" = "true" ]];  then
+  tissues+=("Brain_Amygdala")
+fi
+
+# Tissue 8
+if [[ "$Brain_Anterior_cingulate_cortex_BA24" = "true" ]];  then
+  tissues+=("Brain_Anterior_cingulate_cortex_BA24")
+fi
+
+# Tissue 9
+if [[ "$Brain_Caudate_basal_ganglia" = "true" ]];  then
+  tissues+=("Brain_Caudate_basal_ganglia")
+fi
+
+# Tissue 10
+if [[ "$Brain_Cerebellar_Hemisphere" = "true" ]];  then
+  tissues+=("Brain_Cerebellar_Hemisphere")
+fi
+
+# Tissue 11
+if [[ "$Brain_Cerebellum" = "true" ]];  then
+  tissues+=("Brain_Cerebellum")
+fi
+
+# Tissue 12
+if [[ "$Brain_Cortex" = "true" ]];  then
+  tissues+=("Brain_Cortex")
+fi
+
+# Tissue 13
+if [[ "$Brain_Frontal_Cortex_BA9" = "true" ]];  then
+  tissues+=("Brain_Frontal_Cortex_BA9")
+fi
+
+# Tissue 14
+if [[ "$Brain_Hippocampus" = "true" ]];  then
+  tissues+=("Brain_Hippocampus")
+fi
+
+# Tissue 15
+if [[ "$Brain_Hypothalamus" = "true" ]];  then
+  tissues+=("Brain_Hypothalamus")
+fi
+
+# Tissue 16
+if [[ "$Brain_Nucleus_accumbens_basal_ganglia" = "true" ]];  then
+  tissues+=("Brain_Nucleus_accumbens_basal_ganglia")
+fi
+
+# Tissue 17
+if [[ "$Brain_Putamen_basal_ganglia" = "true" ]];  then
+  tissues+=("Brain_Putamen_basal_ganglia")
+fi
+
+# Tissue 18
+if [[ "$Brain_Spinal_cord_cervical_c_1" = "true" ]];  then
+  tissues+=("Brain_Spinal_cord_cervical_c_1")
+fi
+
+# Tissue 19
+if [[ "$Brain_Substantia_nigra" = "true" ]]; then
+  tissues+=("Brain_Substantia_nigra")
+fi
+# Tissue 20
+if [[ "$Breast_Mammary_Tissue" = "true" ]]; then
+  tissues+=("Breast_Mammary_Tissue")
+fi
+
+# Tissue 21
+if [[ "$Cells_EBV_transformed_lymphocytes" = "true" ]]; then
+  tissues+=("Cells_EBV_transformed_lymphocytes")
+fi
+
+# Tissue 22
+if [[ "$Colon_Sigmoid" = "true" ]]; then
+  tissues+=("Colon_Sigmoid")
+fi
+
+# Tissue 23
+if [[ "$Colon_Transverse" = "true" ]]; then
+    tissues+=("Colon_Transverse")
+fi
+
+# Tissue 24
+if [[ "$Esophagus_Gastroesophageal_Junction" = "true" ]]; then
+  tissues+=("Esophagus_Gastroesophageal_Junction")
+fi
+
+# Tissue 25
+if [[ "$Esophagus_Mucosa" = "true" ]]; then
+  tissues+=("Esophagus_Mucosa")
+fi
+
+# Tissue 26
+if [[ "$Esophagus_Muscularis" = "true" ]]; then
+  tissues+=("Esophagus_Muscularis")
+fi
+
+# Tissue 27
+if [[ "$Heart_Atrial_Appendage" = "true" ]]; then
+  tissues+=("Heart_Atrial_Appendage")
+fi
+
+# Tissue 28
+if [[ "$Heart_Left_Ventricle" = "true" ]]; then
+  tissues+=("Heart_Left_Ventricle")
+fi
+
+# Tissue 29
+if [[ "$Liver" = "true" ]]; then
+  tissues+=("Liver")
+fi
+
+# Tissue 30
+if [[ "$Lung" = "true" ]]; then
+  tissues+=("Lung")
+fi
+# Tissue 31
+
+if [[ "$Minor_Salivary_Gland" = "true" ]]; then
+  tissues+=("Minor_Salivary_Gland")
+fi
+
+# Tissue 32
+if [[ "$Muscle_Skeletal" = "true" ]]; then
+  tissues+=("Muscle_Skeletal")
+fi
+
+# Tissue 33
+if [[ "$Nerve_Tibial" = "true" ]]; then
+  tissues+=("Nerve_Tibial")
+fi
+
+# Tissue 34
+if [[ "$Ovary" = "true" ]]; then
+  tissues+=("Ovary")
+fi
+
+# Tissue 35
+if [[ "$Pancreas" = "true" ]]; then
+  tissues+=("Pancreas")
+fi
+
+# Tissue 36
+if [[ "$Pituitary" = "true" ]]; then
+  tissues+=("Pituitary")
+fi
+
+# Tissue 37
+if [[ "$Prostate" = "true" ]]; then
+  tissues+=("Prostate")
+fi
+
+# Tissue 38
+if [[ "$Skin_Not_Sun_Exposed_Suprapubic" = "true" ]]; then
+  tissues+=("Skin_Not_Sun_Exposed_Suprapubic")
+fi
+
+# Tissue 39
+if [[ "$Skin_Sun_Exposed_Lower_leg" = "true" ]]; then
+  tissues+=("Skin_Sun_Exposed_Lower_leg")
+fi
+
+# Tissue 40
+if [[ "$Small_Intestine_Terminal_Ileum" = "true" ]]; then
+  tissues+=("Small_Intestine_Terminal_Ileum")
+fi
+
+# Tissue 41
+if [[ "$Spleen" = "true" ]]; then
+  tissues+=("Spleen")
+fi
+
+# Tissue 42
+if [[ "$Stomach" = "true" ]]; then
+  tissues+=("Stomach")
+fi
+
+# Tissue 43
+if [[ "$Testis" = "true" ]]; then
+  tissues+=("Testis")
+fi
+
+# Tissue 44
+if [[ "$Thyroid" = "true" ]]; then
+  tissues+=("Thyroid")
+fi
+
+# Tissue 45
+if [[ "$Uterus" = "true" ]]; then
+  tissues+=("Uterus")
+fi
+
+# Tissue 46
+if [[ "$Vagina" = "true" ]]; then
+  tissues+=("Vagina")
+fi
+
+# Tissue 47
+if [[ "$Whole_Blood" = "true" ]]; then
+  tissues+=("Whole_Blood")
+fi
 
 
+if [[ "${#tissues[@]}" -ge 1  ]]; then
+  for tissue in "${tissues[@]}"
+  do
+    if [[ "$synonym" == "No" ]]; then
+    magma --bfile ${binary_dir}/g1000/g1000_$population synonyms=0 \
+    --gene-annot ${binary_dir}/tissues/${tissue}.genes.annot \
+    --pval $gwas_summary ncol=N \
+    --gene-settings adap-permp=10000 \
+    --out ${output_dir}/${output_prefix}.${tissue};
+    elif  [[ "$synonym" == "drop" ]]; then
+      magma --bfile ${binary_dir}/g1000/g1000_$population synonym-dup=drop \
+      --gene-annot ${binary_dir}/tissues/${tissue}.genes.annot \
+      --pval $gwas_summary ncol=N \
+      --gene-settings adap-permp=10000 \
+      --out ${output_dir}/${output_prefix}.${tissue};
+    elif  [[ "$synonym" == "drop-dup" ]]; then
+      magma --bfile ${binary_dir}/g1000/g1000_$population synonym-dup=drop-dup \
+      --gene-annot ${binary_dir}/tissues/${tissue}.genes.annot \
+      --pval $gwas_summary ncol=N \
+      --gene-settings adap-permp=10000 \
+      --out ${output_dir}/${output_prefix}.${tissue};
+    elif  [[ "$synonym" == "skip" ]]; then
+      magma --bfile ${binary_dir}/g1000/g1000_$population synonym-dup=skip \
+      --gene-annot ${binary_dir}/tissues/${tissue}.genes.annot \
+      --pval $gwas_summary ncol=N \
+      --gene-settings adap-permp=10000 \
+      --out ${output_dir}/${output_prefix}.${tissue};
+    elif  [[ "$synonym" == "skip-dup" ]]; then
+      magma --bfile ${binary_dir}/g1000/g1000_$population synonym-dup=skip-dup \
+      --gene-annot ${binary_dir}/tissues/${tissue}.genes.annot \
+      --pval $gwas_summary ncol=N \
+      --gene-settings adap-permp=10000 \
+      --out ${output_dir}/${output_prefix}.${tissue};
+    else
+      magma --bfile ${binary_dir}/g1000/g1000_$population  \
+      --gene-annot ${binary_dir}/tissues/${tissue}.genes.annot \
+      --pval $gwas_summary ncol=N \
+      --gene-settings adap-permp=10000 \
+      --out ${output_dir}/${output_prefix}.${tissue};
+    fi
+
+    Rscript --vanilla ${binary_dir}/Genes.R ${output_dir}/${output_prefix}.${tissue}.genes.out ${binary_dir}/NCBI/NCBI37.3.gene.loc
+
+  done
+fi
 
 
-#################### eQTL networks analysis
-## col indicating the index for the gene ID column and gene-set name column respectively
+#### pathway analysis
 
-#### 1. synapse  ---> output file -->synapse.gsa.out
-magma --gene-results ${output_dir}/${output_prefix}.genes.raw --set-annot ${binary_dir}/geneSets/synapse.sets col=1,2 --out ${output_dir}/synapse
-#plot  ---> output file -->synapse.svg
-Rscript --vanilla ${binary_dir}/plots.R ${output_dir}/synapse.gsa.out ${binary_dir}/geneSets/synapse_clusters.index  ${output_dir}/synapse
-
-#### 2. glia-astrocytes.sets  ---> output file -->glia-astrocytes.gsa.out
-magma --gene-results ${output_dir}/${output_prefix}.genes.raw --set-annot ${binary_dir}/geneSets/glia-astrocytes.sets col=1,2 --out ${output_dir}/glia-astrocytes
-#plot  ---> output file -->glia-astrocytes.svg
-Rscript --vanilla ${binary_dir}/plots.R ${output_dir}/glia-astrocytes.gsa.out ${binary_dir}/geneSets/glia-astrocytes_clusters.index  ${output_dir}/glia-astrocytes
-
-#### 3. glia-microglia.sets  ---> output file -->glia-microglia.gsa.out
-magma --gene-results ${output_dir}/${output_prefix}.genes.raw --set-annot ${binary_dir}/geneSets/glia-microglia.sets col=1,2 --out ${output_dir}/glia-microglia
-#plot  ---> output file -->glia-microglia.svg
-Rscript --vanilla ${binary_dir}/plots.R ${output_dir}/glia-microglia.gsa.out ${binary_dir}/geneSets/glia-microglia_clusters.index  ${output_dir}/glia-microglia
-
-#### 4. glia-oligodendrocytes.sets   ---> output file -->glia-oligodendrocytes.gsa.out
-magma --gene-results ${output_dir}/${output_prefix}.genes.raw --set-annot ${binary_dir}/geneSets/glia-oligodendrocytes.sets col=1,2 --out ${output_dir}/glia-oligodendrocytes
-#plot ---> output file -->glia-oligodendrocytes.svg
-Rscript --vanilla ${binary_dir}/plots.R ${output_dir}/glia-oligodendrocytes.gsa.out ${binary_dir}/geneSets/glia-oligodendrocytes_clusters.index  ${output_dir}/glia-oligodendrocytes
+magma --gene-results ${output_dir}/${output_prefix}.genes.raw --set-annot ${binary_dir}/geneSets/msigdb.v4.0.entrez.sets col=1,2 --out ${output_dir}/msigdb_entrez
+Rscript --vanilla ${binary_dir}/pathway_link.R ${output_dir}/glia-oligodendrocytes.gsa.out ${binary_dir}/msigdb.v4.0.entrez.index  ${output_dir}/msigdb_entrez
+magma --gene-results ${output_dir}/${output_prefix}.genes.raw --set-annot ${binary_dir}/geneSets/msigBIOCARTA_KEGG_REACTOME.sets col=1,2 --out ${output_dir}/BIOCARTA_KEGG_REACTOME
+Rscript --vanilla ${binary_dir}/pathway_link.R ${output_dir}/glia-oligodendrocytes.gsa.out ${binary_dir}/geneSets/msigBIOCARTA_KEGG_REACTOME.index  ${output_dir}/BIOCARTA_KEGG_REACTOME
 
 
 
