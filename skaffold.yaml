@@ -1,0 +1,29 @@
+apiVersion: skaffold/v2beta6
+kind: Config
+deploy:
+  helm:
+    releases:
+      - name: eqtl
+        chartPath: .\dev_depl\helm\
+        valuesFiles:
+          - .\dev_depl\helm\values.yaml
+        artifactOverrides:
+          image: cubrenig/pgwaseqtl
+
+build:
+  local:
+    push: false
+    concurrency: 5
+  artifacts:
+    - image: cubrenig/pgwaseqtl
+      context: app
+      docker:
+        dockerfile: Dockerfile.dev
+      sync:
+        manual:
+          - src: "src/**/*.ts"
+            dest: .
+          - src: "**/*.R"
+            dest: .
+          - src: "**/*.sh"
+            dest: .
