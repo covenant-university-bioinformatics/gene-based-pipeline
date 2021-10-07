@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 ##### eMAGMA
-## To Run ./eMAGMA.sh UK_pval-N.txt afr 0
+## To Run ./eMAGMA.sh UK_pval-N.txt afr [No drop ...]
 
 
 ####### Downloading files
@@ -468,9 +468,9 @@ fi
 #### pathway analysis
 
 magma --gene-results ${output_dir}/${output_prefix}.genes.raw --set-annot ${binary_dir}/geneSets/msigdb.v4.0.entrez.sets col=1,2 --out ${output_dir}/msigdb_entrez
-Rscript --vanilla ${binary_dir}/pathway_link.R ${output_dir}/glia-oligodendrocytes.gsa.out ${binary_dir}/msigdb.v4.0.entrez.index  ${output_dir}/msigdb_entrez
+Rscript --vanilla ${binary_dir}/pathway_link.R ${output_dir}/msigdb_entrez.gsa.out ${binary_dir}/msigdb.v4.0.entrez.index  ${output_dir}/msigdb_entrez
 magma --gene-results ${output_dir}/${output_prefix}.genes.raw --set-annot ${binary_dir}/geneSets/msigBIOCARTA_KEGG_REACTOME.sets col=1,2 --out ${output_dir}/BIOCARTA_KEGG_REACTOME
-Rscript --vanilla ${binary_dir}/pathway_link.R ${output_dir}/glia-oligodendrocytes.gsa.out ${binary_dir}/geneSets/msigBIOCARTA_KEGG_REACTOME.index  ${output_dir}/BIOCARTA_KEGG_REACTOME
+Rscript --vanilla ${binary_dir}/pathway_link.R ${output_dir}/BIOCARTA_KEGG_REACTOME.gsa.out ${binary_dir}/geneSets/msigBIOCARTA_KEGG_REACTOME.index  ${output_dir}/BIOCARTA_KEGG_REACTOME
 
 
 
@@ -481,4 +481,4 @@ Rscript --vanilla ${binary_dir}/Genes.R ${output_dir}/${output_prefix}.genes.out
 
 #### Plots input file
 ### Tow plots: 1- qq.svg; 2- manhattan.svg
-Rscript --vanilla ${binary_dir}/plot_qq_manhattan.R $GWAS_summary $output_dir
+Rscript --vanilla ${binary_dir}/plot_qq_manhattan.R ${GWAS_summary} $output_dir
