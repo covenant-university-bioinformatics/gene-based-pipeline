@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 ##### eMAGMA
 ## To Run ./eMAGMA.sh UK_pval-N.txt afr [No drop ...]
@@ -6,28 +6,26 @@
 
 ####### Downloading files
 ## wget https://ctg.cncr.nl/software/MAGMA/prog/magma_v1.09b.zip
-## wget https://ctg.cncr.nl/software/MAGMA/aux_files/NCBI37.3.zip
-## wget https://ctg.cncr.nl/software/MAGMA/ref_data/g1000_eur.zip
-## wget https://ctg.cncr.nl/software/MAGMA/ref_data/g1000_afr.zip
-## wget https://ctg.cncr.nl/software/MAGMA/ref_data/g1000_eas.zip
-## wget https://ctg.cncr.nl/software/MAGMA/ref_data/g1000_sas.zip
-## wget https://ctg.cncr.nl/software/MAGMA/ref_data/g1000_amr.zip
-## wget https://ctg.cncr.nl/software/MAGMA/ref_data/g1000_subpop.zip
+### wget https://ctg.cncr.nl/software/MAGMA/aux_files/NCBI37.3.zip
+### wget https://ctg.cncr.nl/software/MAGMA/ref_data/g1000_eur.zip
+### wget https://ctg.cncr.nl/software/MAGMA/ref_data/g1000_afr.zip
+### wget https://ctg.cncr.nl/software/MAGMA/ref_data/g1000_eas.zip
+### wget https://ctg.cncr.nl/software/MAGMA/ref_data/g1000_sas.zip
+### wget https://ctg.cncr.nl/software/MAGMA/ref_data/g1000_amr.zip
+### wget https://ctg.cncr.nl/software/MAGMA/ref_data/g1000_subpop.zip
 
 ##
 
-
+#./eMAGMA.sh emagma_test.txt output_folder afr no 0 0
 
 set -x	## To debug
 
-
-input_dir=".";
-output_dir="./Output";
-binary_dir="."
+binary_dir="/mnt/d/eqtl/binary"
 
 gwas_summary=$1;
-population=$2; #  {afr, amr, eur, eas, sas}
-synonym=$3;  # Accounting for synonymous SNP IDs
+output_dir=$2;
+population=$3; #  {afr, amr, eur, eas, sas}
+synonym=$4;  # Accounting for synonymous SNP IDs
 #### synonyms=No -- > suppress automatically loading, to speed up the process
 #### synonym-dup=drop  -->  SNPs that have multiple synonyms in the data are removed from the analysis
 #### synonym-dup=drop-dup -->  for each synonym entry only the first listed in the synonym file is retained;
@@ -35,7 +33,7 @@ synonym=$3;  # Accounting for synonymous SNP IDs
 #### synonym-dup=skip-dup --->  the genotype data for all synonymous SNPs is retained.
 #### if not provided i.e NA --> same as skip
 
-if [[ "$synonym" -eq " " ]]; then
+if [[ "$synonym" -eq "" ]]; then
   synonym=Default;
 fi
 output_prefix=Gene_set;  ####
@@ -58,23 +56,27 @@ output_prefix=Gene_set;  ####
 
 
 ##### $gwas_summary contains full path to inpput GWAS Summary file
-## Tow output files: 1- ${output_prefix}.genes.raw 2- ${output_prefix}.genes.annot
 #### Parameters:
 ## 1. Adding an annotation window around genes in kb
-up_window=$4
-down_window=$5
+up_window=$5 #5
+down_window=$6 #6
 
-if [[ "$up_window" -eq " " ]]; then
+if [[ "$up_window" -eq "" ]]; then
   up_window=0;
 fi
 
-if [[ "down_window" -eq " " ]]; then
+if [[ "$down_window" -eq "" ]]; then
   down_window=0;
 fi
 
-magma --annotate window=${up_window},${down_window} --snp-loc $gwas_summary --gene-loc ${binary_dir}/NCBI/NCBI37.3.gene.loc \
+
+#./eMAGMA.sh emagma_test.txt output_folder afr no 0 0
+
+$binary_dir/magma --annotate window=${up_window},${down_window} --snp-loc $gwas_summary --gene-loc ${binary_dir}/NCBI/NCBI37.3.gene.loc \
 --out ${output_dir}/$output_prefix; ## NCBI to binary_dir
 
+##intermediate output files
+## Tow output files: 1- ${output_prefix}.genes.raw 2- ${output_prefix}.genes.annot
 
 ###############Gene-based MAGMA
 #### Tow senarios:
@@ -91,44 +93,60 @@ magma --annotate window=${up_window},${down_window} --snp-loc $gwas_summary --ge
 
 
 
-
 if [[ "$synonym" == "No" ]]; then
-magma --bfile ${binary_dir}/g1000/g1000_$population synonyms=0 \
+$binary_dir/magma --bfile ${binary_dir}/g1000/g1000_$population synonyms=0 \
 --gene-annot ${output_dir}/${output_prefix}.genes.annot \
 --pval $gwas_summary ncol=N \
 --gene-settings adap-permp=10000 \
 --out ${output_dir}/$output_prefix;
 elif  [[ "$synonym" == "drop" ]]; then
-  magma --bfile ${binary_dir}/g1000/g1000_$population synonym-dup=drop \
+  $binary_dir/magma --bfile ${binary_dir}/g1000/g1000_$population synonym-dup=drop \
   --gene-annot ${output_dir}/${output_prefix}.genes.annot \
   --pval $gwas_summary ncol=N \
   --gene-settings adap-permp=10000 \
   --out ${output_dir}/$output_prefix;
 elif  [[ "$synonym" == "drop-dup" ]]; then
-  magma --bfile ${binary_dir}/g1000/g1000_$population synonym-dup=drop-dup \
+  $binary_dir/magma --bfile ${binary_dir}/g1000/g1000_$population synonym-dup=drop-dup \
   --gene-annot ${output_dir}/${output_prefix}.genes.annot \
   --pval $gwas_summary ncol=N \
   --gene-settings adap-permp=10000 \
   --out ${output_dir}/$output_prefix;
 elif  [[ "$synonym" == "skip" ]]; then
-  magma --bfile ${binary_dir}/g1000/g1000_$population synonym-dup=skip \
+  $binary_dir/magma --bfile ${binary_dir}/g1000/g1000_$population synonym-dup=skip \
   --gene-annot ${output_dir}/${output_prefix}.genes.annot \
   --pval $gwas_summary ncol=N \
   --gene-settings adap-permp=10000 \
   --out ${output_dir}/$output_prefix;
 elif  [[ "$synonym" == "skip-dup" ]]; then
-  magma --bfile ${binary_dir}/g1000/g1000_$population synonym-dup=skip-dup \
+  $binary_dir/magma --bfile ${binary_dir}/g1000/g1000_$population synonym-dup=skip-dup \
   --gene-annot ${output_dir}/${output_prefix}.genes.annot \
   --pval $gwas_summary ncol=N \
   --gene-settings adap-permp=10000 \
   --out ${output_dir}/$output_prefix;
 else
-  magma --bfile ${binary_dir}/g1000/g1000_$population  \
+  $binary_dir/magma --bfile ${binary_dir}/g1000/g1000_$population  \
   --gene-annot ${output_dir}/${output_prefix}.genes.annot \
   --pval $gwas_summary ncol=N \
   --gene-settings adap-permp=10000 \
   --out ${output_dir}/$output_prefix;
 fi
+
+## Oupt file ---> ${output_prefix}.genes.out
+#annotate the snps based on the genes
+#for each gene, it returns the number of SNPs
+#Header;
+#GENE       CHR    START     STOP  NSNPS  NPARAM      N        ZSTAT            P        PERMP  NPERM
+
+#Adipose_Subcutaneous=$7
+#Adipose_Visceral_Omentum=$8
+#Adrenal_Gland
+#Artery_Aorta
+#Artery_Coronary
+#Artery_Tibial
+#Brain_Amygdala
+#Brain_Anterior_cingulate_cortex_BA24
+#Brain_Caudate_basal_ganglia
+
 
 ############# tissues
 #1.  Adipose_Subcutaneous
@@ -181,8 +199,10 @@ fi
 
 declare -a tissues;
 
-Brain_Cerebellum=true;
+Brain_Cerebellum="true";
 Adipose_Subcutaneous="true";
+Artery_Aorta="true"
+
 # Tissue 1
 if [[ "$Adipose_Subcutaneous" = "true" ]];  then
   tissues+=("Adipose_Subcutaneous")
@@ -422,37 +442,37 @@ if [[ "${#tissues[@]}" -ge 1  ]]; then
   for tissue in "${tissues[@]}"
   do
     if [[ "$synonym" == "No" ]]; then
-    magma --bfile ${binary_dir}/g1000/g1000_$population synonyms=0 \
+    $binary_dir/magma --bfile ${binary_dir}/g1000/g1000_$population synonyms=0 \
     --gene-annot ${binary_dir}/tissues/${tissue}.genes.annot \
     --pval $gwas_summary ncol=N \
     --gene-settings adap-permp=10000 \
     --out ${output_dir}/${output_prefix}.${tissue};
     elif  [[ "$synonym" == "drop" ]]; then
-      magma --bfile ${binary_dir}/g1000/g1000_$population synonym-dup=drop \
+      $binary_dir/magma --bfile ${binary_dir}/g1000/g1000_$population synonym-dup=drop \
       --gene-annot ${binary_dir}/tissues/${tissue}.genes.annot \
       --pval $gwas_summary ncol=N \
       --gene-settings adap-permp=10000 \
       --out ${output_dir}/${output_prefix}.${tissue};
     elif  [[ "$synonym" == "drop-dup" ]]; then
-      magma --bfile ${binary_dir}/g1000/g1000_$population synonym-dup=drop-dup \
+      $binary_dir/magma --bfile ${binary_dir}/g1000/g1000_$population synonym-dup=drop-dup \
       --gene-annot ${binary_dir}/tissues/${tissue}.genes.annot \
       --pval $gwas_summary ncol=N \
       --gene-settings adap-permp=10000 \
       --out ${output_dir}/${output_prefix}.${tissue};
     elif  [[ "$synonym" == "skip" ]]; then
-      magma --bfile ${binary_dir}/g1000/g1000_$population synonym-dup=skip \
+      $binary_dir/magma --bfile ${binary_dir}/g1000/g1000_$population synonym-dup=skip \
       --gene-annot ${binary_dir}/tissues/${tissue}.genes.annot \
       --pval $gwas_summary ncol=N \
       --gene-settings adap-permp=10000 \
       --out ${output_dir}/${output_prefix}.${tissue};
     elif  [[ "$synonym" == "skip-dup" ]]; then
-      magma --bfile ${binary_dir}/g1000/g1000_$population synonym-dup=skip-dup \
+      $binary_dir/magma --bfile ${binary_dir}/g1000/g1000_$population synonym-dup=skip-dup \
       --gene-annot ${binary_dir}/tissues/${tissue}.genes.annot \
       --pval $gwas_summary ncol=N \
       --gene-settings adap-permp=10000 \
       --out ${output_dir}/${output_prefix}.${tissue};
     else
-      magma --bfile ${binary_dir}/g1000/g1000_$population  \
+      $binary_dir/magma --bfile ${binary_dir}/g1000/g1000_$population  \
       --gene-annot ${binary_dir}/tissues/${tissue}.genes.annot \
       --pval $gwas_summary ncol=N \
       --gene-settings adap-permp=10000 \
@@ -467,10 +487,10 @@ fi
 
 #### pathway analysis
 
-magma --gene-results ${output_dir}/${output_prefix}.genes.raw --set-annot ${binary_dir}/geneSets/msigdb.v4.0.entrez.sets col=1,2 --out ${output_dir}/msigdb_entrez
-Rscript --vanilla ${binary_dir}/pathway_link.R ${output_dir}/msigdb_entrez.gsa.out ${binary_dir}/msigdb.v4.0.entrez.index  ${output_dir}/msigdb_entrez
-magma --gene-results ${output_dir}/${output_prefix}.genes.raw --set-annot ${binary_dir}/geneSets/msigBIOCARTA_KEGG_REACTOME.sets col=1,2 --out ${output_dir}/BIOCARTA_KEGG_REACTOME
-Rscript --vanilla ${binary_dir}/pathway_link.R ${output_dir}/BIOCARTA_KEGG_REACTOME.gsa.out ${binary_dir}/geneSets/msigBIOCARTA_KEGG_REACTOME.index  ${output_dir}/BIOCARTA_KEGG_REACTOME
+#$binary_dir/magma --gene-results ${output_dir}/${output_prefix}.genes.raw --set-annot ${binary_dir}/geneSets/msigdb.v4.0.entrez.sets col=1,2 --out ${output_dir}/msigdb_entrez
+#Rscript --vanilla ${binary_dir}/pathway_link.R ${output_dir}/msigdb_entrez.gsa.out ${binary_dir}/msigdb.v4.0.entrez.index  ${output_dir}/msigdb_entrez
+#$binary_dir/magma --gene-results ${output_dir}/${output_prefix}.genes.raw --set-annot ${binary_dir}/geneSets/msigBIOCARTA_KEGG_REACTOME.sets col=1,2 --out ${output_dir}/BIOCARTA_KEGG_REACTOME
+#Rscript --vanilla ${binary_dir}/pathway_link.R ${output_dir}/BIOCARTA_KEGG_REACTOME.gsa.out ${binary_dir}/geneSets/msigBIOCARTA_KEGG_REACTOME.index  ${output_dir}/BIOCARTA_KEGG_REACTOME
 
 
 
@@ -481,4 +501,4 @@ Rscript --vanilla ${binary_dir}/Genes.R ${output_dir}/${output_prefix}.genes.out
 
 #### Plots input file
 ### Tow plots: 1- qq.svg; 2- manhattan.svg
-Rscript --vanilla ${binary_dir}/plot_qq_manhattan.R ${GWAS_summary} $output_dir
+Rscript --vanilla ${binary_dir}/plot_qq_manhattan.R ${GWAS_summary} ../$output_dir
