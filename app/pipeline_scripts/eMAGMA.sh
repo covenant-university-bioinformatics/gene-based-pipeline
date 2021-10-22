@@ -137,15 +137,54 @@ fi
 #Header;
 #GENE       CHR    START     STOP  NSNPS  NPARAM      N        ZSTAT            P        PERMP  NPERM
 
-#Adipose_Subcutaneous=$7
-#Adipose_Visceral_Omentum=$8
-#Adrenal_Gland
-#Artery_Aorta
-#Artery_Coronary
-#Artery_Tibial
-#Brain_Amygdala
-#Brain_Anterior_cingulate_cortex_BA24
-#Brain_Caudate_basal_ganglia
+
+Adipose_Subcutaneous=$7
+Adipose_Visceral_Omentum=$8
+Adrenal_Gland=$9
+Artery_Aorta=$10
+Artery_Coronary=$11
+Artery_Tibial=$12
+Brain_Amygdala=$13
+Brain_Anterior_cingulate_cortex_BA24=$14
+Brain_Caudate_basal_ganglia=$15
+Brain_Cerebellar_Hemisphere=$16
+Brain_Cerebellum=$17
+Brain_Cortex=$18
+Brain_Frontal_Cortex_BA9=$19
+Brain_Hippocampus=$20
+Brain_Hypothalamus=$21
+Brain_Nucleus_accumbens_basal_ganglia=$22
+Brain_Putamen_basal_ganglia=$23
+Brain_Spinal_cord_cervical_c_1=$24 ## Changed from Brain_Spinal_cord_cervical_c-1 to Brain_Spinal_cord_cervical_c_1 (hyphon/minus sign is not allowd ina variable name)
+Brain_Substantia_nigra=$25
+Breast_Mammary_Tissue=$26
+Cells_EBV-transformed_lymphocytes=$27 ## Changed from Cells_EBV-transformed_lymphocytes to Cells_EBV_transformed_lymphocytes  (hyphon/minus sign is not allowd ina variable name)
+Colon_Sigmoid=$28
+Colon_Transverse=$29
+Esophagus_Gastroesophageal_Junction=$
+Esophagus_Mucosa=$30
+Esophagus_Muscularis=$31
+Heart_Atrial_Appendage=$32
+Heart_Left_Ventricle=$33
+Liver=$35
+Lung=$35
+Minor_Salivary_Gland=$36
+Muscle_Skeletal=$37
+Nerve_Tibial=$38
+Ovary=$39
+Pancreas=$40
+Pituitary=$41
+Prostate=$42
+Skin_Not_Sun_Exposed_Suprapubic=$43
+Skin_Sun_Exposed_Lower_leg=$44
+Small_Intestine_Terminal_Ileum=$45
+Spleen=$46
+Stomach=$47
+Testis=$48
+Thyroid=$49
+Uterus=$50
+Vagina=$51
+Whole_Blood=$52
 
 
 ############# tissues
@@ -196,6 +235,9 @@ fi
 #45. Uterus
 #46. Vagina
 #47. Whole_Blood
+
+### Please note the number of tissues is 47 not 48, as indicated on GitHub --->
+### --> this because  the "Cells_Transformed_fibroblasts.genes.annot" is missing in emagma_anno_3.tar.gz
 
 declare -a tissues;
 
