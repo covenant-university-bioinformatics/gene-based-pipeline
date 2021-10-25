@@ -158,7 +158,7 @@ Brain_Putamen_basal_ganglia=$23
 Brain_Spinal_cord_cervical_c_1=$24 ## Changed from Brain_Spinal_cord_cervical_c-1 to Brain_Spinal_cord_cervical_c_1 (hyphon/minus sign is not allowd ina variable name)
 Brain_Substantia_nigra=$25
 Breast_Mammary_Tissue=$26
-Cells_EBV-transformed_lymphocytes=$27 ## Changed from Cells_EBV-transformed_lymphocytes to Cells_EBV_transformed_lymphocytes  (hyphon/minus sign is not allowd ina variable name)
+Cells_EBV_transformed_lymphocytes=$27 ## Changed from Cells_EBV-transformed_lymphocytes to Cells_EBV_transformed_lymphocytes  (hyphon/minus sign is not allowd ina variable name)
 Colon_Sigmoid=$28
 Colon_Transverse=$29
 Esophagus_Gastroesophageal_Junction=$
@@ -526,15 +526,8 @@ if [[ "${#tissues[@]}" -ge 1  ]]; then
   done
 fi
 
-
 #### pathway analysis
-
-#$binary_dir/magma --gene-results ${output_dir}/${output_prefix}.genes.raw --set-annot ${binary_dir}/geneSets/msigdb.v4.0.entrez.sets col=1,2 --out ${output_dir}/msigdb_entrez
-#Rscript --vanilla ${binary_dir}/pathway_link.R ${output_dir}/msigdb_entrez.gsa.out ${binary_dir}/msigdb.v4.0.entrez.index  ${output_dir}/msigdb_entrez
-#$binary_dir/magma --gene-results ${output_dir}/${output_prefix}.genes.raw --set-annot ${binary_dir}/geneSets/msigBIOCARTA_KEGG_REACTOME.sets col=1,2 --out ${output_dir}/BIOCARTA_KEGG_REACTOME
-#Rscript --vanilla ${binary_dir}/pathway_link.R ${output_dir}/BIOCARTA_KEGG_REACTOME.gsa.out ${binary_dir}/geneSets/msigBIOCARTA_KEGG_REACTOME.index  ${output_dir}/BIOCARTA_KEGG_REACTOME
-
-
+#### We decided to do pathway analysis in Pascal
 
 #### Reformat gene set Output file by adding genes'
 ## Oupt file ---> ${output_prefix}.genes.out i.e overwrite the file
@@ -543,4 +536,6 @@ Rscript --vanilla ${binary_dir}/Genes.R ${output_dir}/${output_prefix}.genes.out
 
 #### Plots input file
 ### Tow plots: 1- qq.svg; 2- manhattan.svg
-Rscript --vanilla ${binary_dir}/plot_qq_manhattan.R ${GWAS_summary} ../$output_dir
+echo "output directory"
+echo ${output_dir}
+Rscript --vanilla ${binary_dir}/plot_qq_manhattan.R ${GWAS_summary} ${output_dir}
