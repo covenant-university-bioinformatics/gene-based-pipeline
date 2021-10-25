@@ -97,42 +97,42 @@ if [[ "$synonym" == "No" ]]; then
 $binary_dir/magma --bfile ${binary_dir}/g1000/g1000_$population synonyms=0 \
 --gene-annot ${output_dir}/${output_prefix}.genes.annot \
 --pval $gwas_summary ncol=N \
---gene-settings adap-permp=10000 \
+--gene-settings adap-permp=100 \
 --big-data \
 --out ${output_dir}/$output_prefix;
 elif  [[ "$synonym" == "drop" ]]; then
   $binary_dir/magma --bfile ${binary_dir}/g1000/g1000_$population synonym-dup=drop \
   --gene-annot ${output_dir}/${output_prefix}.genes.annot \
   --pval $gwas_summary ncol=N \
-  --gene-settings adap-permp=10000 \
+  --gene-settings adap-permp=100 \
   --big-data \
   --out ${output_dir}/$output_prefix;
 elif  [[ "$synonym" == "drop-dup" ]]; then
   $binary_dir/magma --bfile ${binary_dir}/g1000/g1000_$population synonym-dup=drop-dup \
   --gene-annot ${output_dir}/${output_prefix}.genes.annot \
   --pval $gwas_summary ncol=N \
-  --gene-settings adap-permp=10000 \
+  --gene-settings adap-permp=100 \
   --big-data \
   --out ${output_dir}/$output_prefix;
 elif  [[ "$synonym" == "skip" ]]; then
   $binary_dir/magma --bfile ${binary_dir}/g1000/g1000_$population synonym-dup=skip \
   --gene-annot ${output_dir}/${output_prefix}.genes.annot \
   --pval $gwas_summary ncol=N \
-  --gene-settings adap-permp=10000 \
+  --gene-settings adap-permp=100 \
   --big-data \
   --out ${output_dir}/$output_prefix;
 elif  [[ "$synonym" == "skip-dup" ]]; then
   $binary_dir/magma --bfile ${binary_dir}/g1000/g1000_$population synonym-dup=skip-dup \
   --gene-annot ${output_dir}/${output_prefix}.genes.annot \
   --pval $gwas_summary ncol=N \
-  --gene-settings adap-permp=10000 \
+  --gene-settings adap-permp=100 \
   --big-data \
   --out ${output_dir}/$output_prefix;
 else
   $binary_dir/magma --bfile ${binary_dir}/g1000/g1000_$population  \
   --gene-annot ${output_dir}/${output_prefix}.genes.annot \
   --pval $gwas_summary ncol=N \
-  --gene-settings adap-permp=10000 \
+  --gene-settings adap-permp=100 \
   --big-data \
   --out ${output_dir}/$output_prefix;
 fi
