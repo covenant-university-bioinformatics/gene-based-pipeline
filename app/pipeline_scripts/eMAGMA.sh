@@ -548,6 +548,6 @@ Rscript --vanilla ${binary_dir}/Genes.R ${output_dir}/${output_prefix}.genes.out
 
 #### Plots input file
 ### Tow plots: 1- qq.svg; 2- manhattan.svg
-echo "output directory"
+echo "output directory name"
 echo ${output_dir}
 Rscript --vanilla ${binary_dir}/plot_qq_manhattan.R ${GWAS_summary} ${output_dir}
