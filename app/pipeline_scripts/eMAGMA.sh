@@ -493,42 +493,42 @@ if [[ "${#tissues[@]}" -ge 1  ]]; then
     $binary_dir/magma --bfile ${binary_dir}/g1000/g1000_$population synonyms=0 \
     --gene-annot ${binary_dir}/tissues/${tissue}.genes.annot \
     --pval $gwas_summary ncol=N \
-    --gene-settings adap-permp=10000 \
+    --gene-settings adap-permp=100 \
     --big-data \
     --out ${output_dir}/${output_prefix}.${tissue};
     elif  [[ "$synonym" == "drop" ]]; then
       $binary_dir/magma --bfile ${binary_dir}/g1000/g1000_$population synonym-dup=drop \
       --gene-annot ${binary_dir}/tissues/${tissue}.genes.annot \
       --pval $gwas_summary ncol=N \
-      --gene-settings adap-permp=10000 \
+      --gene-settings adap-permp=100 \
       --big-data \
       --out ${output_dir}/${output_prefix}.${tissue};
     elif  [[ "$synonym" == "drop-dup" ]]; then
       $binary_dir/magma --bfile ${binary_dir}/g1000/g1000_$population synonym-dup=drop-dup \
       --gene-annot ${binary_dir}/tissues/${tissue}.genes.annot \
       --pval $gwas_summary ncol=N \
-      --gene-settings adap-permp=10000 \
+      --gene-settings adap-permp=100 \
       --big-data \
       --out ${output_dir}/${output_prefix}.${tissue};
     elif  [[ "$synonym" == "skip" ]]; then
       $binary_dir/magma --bfile ${binary_dir}/g1000/g1000_$population synonym-dup=skip \
       --gene-annot ${binary_dir}/tissues/${tissue}.genes.annot \
       --pval $gwas_summary ncol=N \
-      --gene-settings adap-permp=10000 \
+      --gene-settings adap-permp=100 \
       --big-data \
       --out ${output_dir}/${output_prefix}.${tissue};
     elif  [[ "$synonym" == "skip-dup" ]]; then
       $binary_dir/magma --bfile ${binary_dir}/g1000/g1000_$population synonym-dup=skip-dup \
       --gene-annot ${binary_dir}/tissues/${tissue}.genes.annot \
       --pval $gwas_summary ncol=N \
-      --gene-settings adap-permp=10000 \
+      --gene-settings adap-permp=100 \
       --big-data \
       --out ${output_dir}/${output_prefix}.${tissue};
     else
       $binary_dir/magma --bfile ${binary_dir}/g1000/g1000_$population  \
       --gene-annot ${binary_dir}/tissues/${tissue}.genes.annot \
       --pval $gwas_summary ncol=N \
-      --gene-settings adap-permp=10000 \
+      --gene-settings adap-permp=100 \
       --big-data \
       --out ${output_dir}/${output_prefix}.${tissue};
     fi
