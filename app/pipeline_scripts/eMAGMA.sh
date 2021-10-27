@@ -97,42 +97,42 @@ if [[ "$synonym" == "No" ]]; then
 $binary_dir/magma --bfile ${binary_dir}/g1000/g1000_$population synonyms=0 \
 --gene-annot ${output_dir}/${output_prefix}.genes.annot \
 --pval $gwas_summary ncol=N \
---gene-settings adap-permp=100 \
+--gene-settings adap-permp=1001 \
 --big-data \
 --out ${output_dir}/$output_prefix;
 elif  [[ "$synonym" == "drop" ]]; then
   $binary_dir/magma --bfile ${binary_dir}/g1000/g1000_$population synonym-dup=drop \
   --gene-annot ${output_dir}/${output_prefix}.genes.annot \
   --pval $gwas_summary ncol=N \
-  --gene-settings adap-permp=100 \
+  --gene-settings adap-permp=1001 \
   --big-data \
   --out ${output_dir}/$output_prefix;
 elif  [[ "$synonym" == "drop-dup" ]]; then
   $binary_dir/magma --bfile ${binary_dir}/g1000/g1000_$population synonym-dup=drop-dup \
   --gene-annot ${output_dir}/${output_prefix}.genes.annot \
   --pval $gwas_summary ncol=N \
-  --gene-settings adap-permp=100 \
+  --gene-settings adap-permp=1001 \
   --big-data \
   --out ${output_dir}/$output_prefix;
 elif  [[ "$synonym" == "skip" ]]; then
   $binary_dir/magma --bfile ${binary_dir}/g1000/g1000_$population synonym-dup=skip \
   --gene-annot ${output_dir}/${output_prefix}.genes.annot \
   --pval $gwas_summary ncol=N \
-  --gene-settings adap-permp=100 \
+  --gene-settings adap-permp=1001 \
   --big-data \
   --out ${output_dir}/$output_prefix;
 elif  [[ "$synonym" == "skip-dup" ]]; then
   $binary_dir/magma --bfile ${binary_dir}/g1000/g1000_$population synonym-dup=skip-dup \
   --gene-annot ${output_dir}/${output_prefix}.genes.annot \
   --pval $gwas_summary ncol=N \
-  --gene-settings adap-permp=100 \
+  --gene-settings adap-permp=1001 \
   --big-data \
   --out ${output_dir}/$output_prefix;
 else
   $binary_dir/magma --bfile ${binary_dir}/g1000/g1000_$population  \
   --gene-annot ${output_dir}/${output_prefix}.genes.annot \
   --pval $gwas_summary ncol=N \
-  --gene-settings adap-permp=100 \
+  --gene-settings adap-permp=1001 \
   --big-data \
   --out ${output_dir}/$output_prefix;
 fi
@@ -198,47 +198,47 @@ tissue=$7
 ### Please note the number of tissues is 47 not 48, as indicated on GitHub --->
 ### --> this because  the "Cells_Transformed_fibroblasts.genes.annot" is missing in emagma_anno_3.tar.gz
 
-if [[ "$tissue" -ne "" ]]; then
+if [[ "$tissue" != "" ]]; then
     if [[ "$synonym" == "No" ]]; then
     $binary_dir/magma --bfile ${binary_dir}/g1000/g1000_$population synonyms=0 \
     --gene-annot ${binary_dir}/tissues/${tissue}.genes.annot \
     --pval $gwas_summary ncol=N \
-    --gene-settings adap-permp=100 \
+    --gene-settings adap-permp=1001 \
     --big-data \
     --out ${output_dir}/${output_prefix}.${tissue};
     elif  [[ "$synonym" == "drop" ]]; then
       $binary_dir/magma --bfile ${binary_dir}/g1000/g1000_$population synonym-dup=drop \
       --gene-annot ${binary_dir}/tissues/${tissue}.genes.annot \
       --pval $gwas_summary ncol=N \
-      --gene-settings adap-permp=100 \
+      --gene-settings adap-permp=1001 \
       --big-data \
       --out ${output_dir}/${output_prefix}.${tissue};
     elif  [[ "$synonym" == "drop-dup" ]]; then
       $binary_dir/magma --bfile ${binary_dir}/g1000/g1000_$population synonym-dup=drop-dup \
       --gene-annot ${binary_dir}/tissues/${tissue}.genes.annot \
       --pval $gwas_summary ncol=N \
-      --gene-settings adap-permp=100 \
+      --gene-settings adap-permp=1001 \
       --big-data \
       --out ${output_dir}/${output_prefix}.${tissue};
     elif  [[ "$synonym" == "skip" ]]; then
       $binary_dir/magma --bfile ${binary_dir}/g1000/g1000_$population synonym-dup=skip \
       --gene-annot ${binary_dir}/tissues/${tissue}.genes.annot \
       --pval $gwas_summary ncol=N \
-      --gene-settings adap-permp=100 \
+      --gene-settings adap-permp=1001 \
       --big-data \
       --out ${output_dir}/${output_prefix}.${tissue};
     elif  [[ "$synonym" == "skip-dup" ]]; then
       $binary_dir/magma --bfile ${binary_dir}/g1000/g1000_$population synonym-dup=skip-dup \
       --gene-annot ${binary_dir}/tissues/${tissue}.genes.annot \
       --pval $gwas_summary ncol=N \
-      --gene-settings adap-permp=100 \
+      --gene-settings adap-permp=1001 \
       --big-data \
       --out ${output_dir}/${output_prefix}.${tissue};
     else
       $binary_dir/magma --bfile ${binary_dir}/g1000/g1000_$population  \
       --gene-annot ${binary_dir}/tissues/${tissue}.genes.annot \
       --pval $gwas_summary ncol=N \
-      --gene-settings adap-permp=100 \
+      --gene-settings adap-permp=1001 \
       --big-data \
       --out ${output_dir}/${output_prefix}.${tissue};
     fi
@@ -256,6 +256,5 @@ Rscript --vanilla ${binary_dir}/Genes.R ${output_dir}/${output_prefix}.genes.out
 
 #### Plots input file
 ### Tow plots: 1- qq.svg; 2- manhattan.svg
-echo "output directory name"
-echo ${output_dir}
-Rscript --vanilla ${binary_dir}/plot_qq_manhattan.R ${GWAS_summary} ${output_dir}
+
+Rscript --vanilla ${binary_dir}/plot_qq_manhattan.R ${gwas_summary} ${output_dir}
