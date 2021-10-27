@@ -4,11 +4,11 @@ import {
   EqtlJobsDoc,
   JobStatus,
   EqtlJobsModel,
-} from '../jobs/models/eqtl.jobs.model';
+} from '../jobs/models/geneset.jobs.model';
 import {
   EqtlDoc,
   EqtlModel,
-} from '../jobs/models/eqtl.model';
+} from '../jobs/models/geneset.model';
 import { spawn, spawnSync } from 'child_process';
 import connectDB from '../mongoose';
 

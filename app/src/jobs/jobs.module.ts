@@ -1,6 +1,6 @@
 import { Global, Module } from '@nestjs/common';
-import { JobsEqtlService } from './services/jobs.eqtl.service';
-import { JobsEqtlController } from './controllers/jobs.eqtl.controller';
+import { JobsGenesetService } from './services/jobs.geneset.service';
+import { JobsGenesetController } from './controllers/jobs.geneset.controller';
 import { QueueModule } from '../jobqueue/queue.module';
 
 @Global()
@@ -10,8 +10,8 @@ import { QueueModule } from '../jobqueue/queue.module';
     // AuthModule,
     // NatsModule,
   ],
-  controllers: [JobsEqtlController],
-  providers: [JobsEqtlService],
+  controllers: [JobsGenesetController],
+  providers: [JobsGenesetService],
   exports: [],
 })
 export class JobsModule {}

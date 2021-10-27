@@ -8,7 +8,7 @@ import {
   IsEnum,
   IsNotEmpty,
 } from 'class-validator';
-import {Populations, SynonymousSNPS} from "../models/eqtl.model";
+import {Populations, SynonymousSNPS} from "../models/geneset.model";
 
 export class CreateJobDto {
   @IsString()

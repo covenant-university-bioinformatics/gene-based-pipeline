@@ -11,7 +11,7 @@ export interface WorkerJob {
 }
 
 @Injectable()
-export class EqtlJobQueue {
+export class GeneSetJobQueue {
   queue: Queue<WorkerJob, any, string>;
 
   constructor() {

@@ -310,7 +310,7 @@ export function writeImputationFile(
   });
 }
 
-export function writeEqtlFile(
+export function writeGeneSetFile(
   filename: string,
   output_filename: string,
   objectColumns: Partial<Column>,
@@ -323,12 +323,6 @@ export function writeEqtlFile(
     );
   }
 
-  // const readInterface = readline.createInterface(
-  //   fs.createReadStream(filename),
-  //   process.stdout,
-  //   undefined,
-  //   false,
-  // );
   const liner = new lineByLine(filename);
 
   let stream = fs.createWriteStream(output_filename);

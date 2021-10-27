@@ -1,12 +1,12 @@
 import config from '../config/bullmq.config';
-import { WorkerJob } from '../jobqueue/queue/eqtl.queue';
+import { WorkerJob } from '../jobqueue/queue/geneset.queue';
 import { Worker, Job, QueueScheduler } from 'bullmq';
 import {
   EqtlJobsModel,
   JobStatus,
-} from '../jobs/models/eqtl.jobs.model';
+} from '../jobs/models/geneset.jobs.model';
 import * as path from 'path';
-import { EqtlModel } from '../jobs/models/eqtl.model';
+import { EqtlModel } from '../jobs/models/geneset.model';
 import { JobCompletedPublisher } from '../nats/publishers/job-completed-publisher';
 
 let scheduler;

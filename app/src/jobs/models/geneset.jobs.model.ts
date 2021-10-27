@@ -1,6 +1,6 @@
 import * as mongoose from 'mongoose';
 import { UserDoc } from '../../auth/models/user.model';
-import { EqtlDoc } from './eqtl.model';
+import { GeneSetDoc } from './geneset.model';
 
 export enum JobStatus {
   COMPLETED = 'completed',
@@ -23,12 +23,12 @@ interface JobsAttrs {
 
 // An interface that describes the extra properties that a model has
 //collection level methods
-interface JobsModel extends mongoose.Model<EqtlJobsDoc> {
-  build(attrs: JobsAttrs): EqtlJobsDoc;
+interface JobsModel extends mongoose.Model<GeneSetJobsDoc> {
+  build(attrs: JobsAttrs): GeneSetJobsDoc;
 }
 
 //An interface that describes a properties that a document has
-export interface EqtlJobsDoc extends mongoose.Document {
+export interface GeneSetJobsDoc extends mongoose.Document {
   id: string;
   jobUID: string;
   job_name: string;
@@ -38,12 +38,12 @@ export interface EqtlJobsDoc extends mongoose.Document {
   outputFile: string;
   failed_reason: string;
   longJob: boolean;
-  eqtl_params: EqtlDoc;
+  eqtl_params: GeneSetDoc;
   version: number;
   completionTime: Date;
 }
 
-const EqtlJobSchema = new mongoose.Schema<EqtlJobsDoc, JobsModel>(
+const GeneSetJobSchema = new mongoose.Schema<GeneSetJobsDoc, JobsModel>(
   {
     jobUID: {
       type: String,
@@ -121,35 +121,35 @@ const EqtlJobSchema = new mongoose.Schema<EqtlJobsDoc, JobsModel>(
 // jobsSchema.set("versionKey", "version");
 
 //collection level methods
-EqtlJobSchema.statics.build = (attrs: JobsAttrs) => {
-  return new EqtlJobsModel(attrs);
+GeneSetJobSchema.statics.build = (attrs: JobsAttrs) => {
+  return new GeneSetJobsModel(attrs);
 };
 
 //Cascade delete main job parameters when job is deleted
-EqtlJobSchema.pre('remove', async function (next) {
+GeneSetJobSchema.pre('remove', async function (next) {
   console.log('Job parameters being removed!');
-  await this.model('Eqtl').deleteMany({
+  await this.model('GeneSet').deleteMany({
     job: this.id,
   });
   next();
 });
 
 //reverse populate jobs with main job parameters
-EqtlJobSchema.virtual('eqtl_params', {
-  ref: 'Eqtl',
+GeneSetJobSchema.virtual('geneset_params', {
+  ref: 'GeneSet',
   localField: '_id',
   foreignField: 'job',
   required: true,
   justOne: true,
 });
 
-EqtlJobSchema.set('versionKey', 'version');
+GeneSetJobSchema.set('versionKey', 'version');
 
 //create mongoose model
-const EqtlJobsModel = mongoose.model<EqtlJobsDoc, JobsModel>(
-  'EqtlJob',
-  EqtlJobSchema,
-  'eqtljobs',
+const GeneSetJobsModel = mongoose.model<GeneSetJobsDoc, JobsModel>(
+  'GeneSetJob',
+  GeneSetJobSchema,
+  'genesetjobs',
 );
 
-export { EqtlJobsModel };
+export { GeneSetJobsModel };

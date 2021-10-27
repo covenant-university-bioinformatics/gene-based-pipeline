@@ -20,15 +20,15 @@ import * as multer from 'multer';
 import * as fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { JobsEqtlService } from '../services/jobs.eqtl.service';
+import { JobsGenesetService } from '../services/jobs.geneset.service';
 import { CreateJobDto } from '../dto/create-job.dto';
 import {
   deleteFileorFolder,
   fileOrPathExists,
   fileSizeMb,
 } from '../../utils/utilityfunctions';
-import { fetchLines, writeEqtlFile } from '../../utils/validateFile';
-import { JobStatus } from '../models/eqtl.jobs.model';
+import {fetchLines, writeGeneSetFile} from '../../utils/validateFile';
+import { JobStatus } from '../models/geneset.jobs.model';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from '../../decorators/get-user.decorator';
 import { UserDoc } from '../../auth/models/user.model';
@@ -48,8 +48,8 @@ const storageOpts = multer.diskStorage({
 
 @UseGuards(AuthGuard())
 @Controller('api/eqtl/jobs')
-export class JobsEqtlController {
-  constructor(private readonly jobsService: JobsEqtlService) {}
+export class JobsGeneSetController {
+  constructor(private readonly jobsService: JobsGenesetService) {}
 
   @Post()
   @UseInterceptors(FileInterceptor('file', { storage: storageOpts }))
@@ -108,7 +108,7 @@ export class JobsEqtlController {
     const filename = `/pv/analysis/${jobUID}/input/${file.filename}`;
 
     //write the exact columns needed by the analysis
-    const totalLines = writeEqtlFile(file.path, filename, {
+    const totalLines = writeGeneSetFile(file.path, filename, {
       marker_name: parseInt(createJobDto.marker_name, 10) - 1,
       chr: parseInt(createJobDto.chromosome, 10) - 1,
       p: parseInt(createJobDto.p_value, 10) - 1,

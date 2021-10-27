@@ -6,21 +6,21 @@ import {
 } from '@nestjs/common';
 import { CreateJobDto } from '../dto/create-job.dto';
 import {
-  EqtlJobsDoc,
-  EqtlJobsModel,
+  GeneSetJobsDoc,
+  GeneSetJobsModel,
   JobStatus,
-} from '../models/eqtl.jobs.model';
-import { EqtlModel } from '../models/eqtl.model';
-import { EqtlJobQueue } from '../../jobqueue/queue/eqtl.queue';
+} from '../models/geneset.jobs.model';
+import { GeneSetModel } from '../models/geneset.model';
+import { GeneSetJobQueue } from '../../jobqueue/queue/geneset.queue';
 import { UserDoc } from '../../auth/models/user.model';
 import { deleteFileorFolder } from '../../utils/utilityfunctions';
 import { GetJobsDto } from '../dto/getjobs.dto';
 
 @Injectable()
-export class JobsEqtlService {
+export class JobsGeneSetService {
   constructor(
-    @Inject(EqtlJobQueue)
-    private jobQueue: EqtlJobQueue,
+    @Inject(GeneSetJobQueue)
+    private jobQueue: GeneSetJobQueue,
   ) {}
 
   async create(
@@ -30,8 +30,8 @@ export class JobsEqtlService {
     user: UserDoc,
     totalLines: number,
   ) {
-    const session = await EqtlJobsModel.startSession();
-    const sessionTest = await EqtlModel.startSession();
+    const session = await GeneSetJobsModel.startSession();
+    const sessionTest = await GeneSetModel.startSession();
     session.startTransaction();
     sessionTest.startTransaction();
 
@@ -42,7 +42,7 @@ export class JobsEqtlService {
       const longJob = true;
 
       //save job parameters, folder path, filename in database
-      const newJob = await EqtlJobsModel.build({
+      const newJob = await GeneSetJobsModel.build({
         job_name: createJobDto.job_name,
         jobUID,
         inputFile: filename,
@@ -52,7 +52,7 @@ export class JobsEqtlService {
       });
 
       //let the models be created per specific analysis
-      const eqtl = await EqtlModel.build({
+      const eqtl = await GeneSetModel.build({
         ...createJobDto,
         job: newJob.id,
       });
@@ -109,7 +109,7 @@ export class JobsEqtlService {
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
 
-    const result = await EqtlJobsModel.aggregate([
+    const result = await GeneSetJobsModel.aggregate([
       { $match: { user: user._id } },
       { $sort: { [sortVariable]: -1 } },
       {
@@ -172,14 +172,14 @@ export class JobsEqtlService {
   // }
 
   async getJobByID(id: string) {
-    return await EqtlJobsModel.findById(id)
+    return await GeneSetJobsModel.findById(id)
       .populate('eqtl_params')
       .populate('user')
       .exec();
   }
 
-  async deleteManyJobs(user: UserDoc): Promise<EqtlJobsDoc[]> {
-    return await EqtlJobsModel.find({ user: user._id }).exec();
+  async deleteManyJobs(user: UserDoc): Promise<GeneSetJobsDoc[]> {
+    return await GeneSetJobsModel.find({ user: user._id }).exec();
   }
 }
 

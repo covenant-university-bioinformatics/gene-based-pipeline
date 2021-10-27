@@ -17,7 +17,7 @@ export enum SynonymousSNPS {
 }
 
 //Interface that describe the properties that are required to create a new job
-interface EqtlAttrs {
+interface GeneSetAttrs {
   job: string;
   population: Populations;
   synonnym: SynonymousSNPS;
@@ -72,12 +72,12 @@ interface EqtlAttrs {
 
 // An interface that describes the extra properties that a ticket model has
 //collection level methods
-interface EqtlModel extends mongoose.Model<EqtlDoc> {
-  build(attrs: EqtlAttrs): EqtlDoc;
+interface GeneSetModel extends mongoose.Model<GeneSetDoc> {
+  build(attrs: GeneSetAttrs): GeneSetDoc;
 }
 
 //An interface that describes a properties that a document has
-export interface EqtlDoc extends mongoose.Document {
+export interface GeneSetDoc extends mongoose.Document {
   id: string;
   version: number;
   population: Populations;
@@ -131,7 +131,7 @@ export interface EqtlDoc extends mongoose.Document {
   Whole_Blood: boolean;
 }
 
-const EqtlSchema = new mongoose.Schema<EqtlDoc, EqtlModel>(
+const GeneSetSchema = new mongoose.Schema<GeneSetDoc, GeneSetModel>(
   {
       Adipose_Subcutaneous: {
           type: Boolean,
@@ -323,7 +323,7 @@ const EqtlSchema = new mongoose.Schema<EqtlDoc, EqtlModel>(
       },
     job: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'EqtlJob',
+      ref: 'GeneSetJob',
       required: true,
     },
     version: {
@@ -344,18 +344,18 @@ const EqtlSchema = new mongoose.Schema<EqtlDoc, EqtlModel>(
 );
 
 //increments version when document updates
-EqtlSchema.set('versionKey', 'version');
+GeneSetSchema.set('versionKey', 'version');
 
 //collection level methods
-EqtlSchema.statics.build = (attrs: EqtlAttrs) => {
-  return new EqtlModel(attrs);
+GeneSetSchema.statics.build = (attrs: GeneSetAttrs) => {
+  return new GeneSetModel(attrs);
 };
 
 //create mongoose model
-const EqtlModel = mongoose.model<EqtlDoc, EqtlModel>(
-  'Eqtl',
-  EqtlSchema,
-  'eqtls',
+const GeneSetModel = mongoose.model<GeneSetDoc, GeneSetModel>(
+  'GeneSet',
+  GeneSetSchema,
+  'genesets',
 );
 
-export { EqtlModel };
+export { GeneSetModel };
