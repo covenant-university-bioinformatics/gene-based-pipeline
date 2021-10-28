@@ -7,7 +7,7 @@ import { AuthService } from '../../auth/services/auth.service';
 
 @Injectable()
 export class UserApprovedListener extends Listener<UserApprovedEvent> {
-  queueGroupName = 'eqtl-jobs-service';
+  queueGroupName = 'genebased-jobs-service';
   readonly subject: Subjects.UserApproved = Subjects.UserApproved;
 
   @Inject(AuthService)

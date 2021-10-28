@@ -1,12 +1,9 @@
 import config from '../config/bullmq.config';
-import { WorkerJob } from '../jobqueue/queue/geneset.queue';
+import { WorkerJob } from '../jobqueue/queue/genebased.queue';
 import { Worker, Job, QueueScheduler } from 'bullmq';
-import {
-  EqtlJobsModel,
-  JobStatus,
-} from '../jobs/models/geneset.jobs.model';
+import { GeneBasedJobsModel, JobStatus } from '../jobs/models/genebased.jobs.model';
 import * as path from 'path';
-import { EqtlModel } from '../jobs/models/geneset.model';
+import { GeneBasedModel } from '../jobs/models/genebased.model';
 import { JobCompletedPublisher } from '../nats/publishers/job-completed-publisher';
 
 let scheduler;
@@ -39,22 +36,22 @@ export const createWorkers = async (
 
       // save in mongo database
       // job is complete
-      const parameters = await EqtlModel.findOne({
+      const parameters = await GeneBasedModel.findOne({
         job: job.data.jobId,
       }).exec();
 
-      // const jobParams = await EqtlModel.findById(job.data.jobId).exec();
-      const pathToOutputDir = `/pv/analysis/${job.data.jobUID}/eqtl/output`;
-      const finishedJob = await EqtlJobsModel.findByIdAndUpdate(
+      // const jobParams = await GeneBasedModel.findById(job.data.jobId).exec();
+      const pathToOutputDir = `/pv/analysis/${job.data.jobUID}/genebased/output`;
+      const finishedJob = await GeneBasedJobsModel.findByIdAndUpdate(
         job.data.jobId,
         {
           status: JobStatus.COMPLETED,
-          // outputFile: `${pathToOutputDir}/annotation_output.hg19_multianno_full.tsv`,
-          // ...(parameters.disgenet === true && {
-          //   disgenet: `${pathToOutputDir}/disgenet.txt`,
-          // }),
-          // snp_plot: `${pathToOutputDir}/snp_plot.jpg`,
-          // exon_plot: `${pathToOutputDir}/exon_plot.jpg`,
+          gene_based_genes_out: `${pathToOutputDir}/Gene_set.genes.out`,
+          ...(parameters.tissue !== "" && {
+            gene_based_tissue_genes_out: `${pathToOutputDir}/Gene_set.${parameters.tissue}.genes.out`,
+          }),
+          manhattan_plot: `${pathToOutputDir}/manhattan.png`,
+          qq_plot: `${pathToOutputDir}/qq.png`,
           completionTime: new Date(),
         },
         { new: true },
@@ -71,7 +68,7 @@ export const createWorkers = async (
             jobName: job.data.jobName,
             status: finishedJob.status,
             username: job.data.username,
-            link: `tools/eqtl/result_view/${finishedJob._id}`,
+            link: `tools/genebased/result_view/${finishedJob._id}`,
           },
         });
       }
@@ -81,7 +78,7 @@ export const createWorkers = async (
       console.log('worker ' + i + ' failed ' + job.failedReason);
       //update job in database as failed
       //save in mongo database
-      const finishedJob = await EqtlJobsModel.findByIdAndUpdate(
+      const finishedJob = await GeneBasedJobsModel.findByIdAndUpdate(
         job.data.jobId,
         {
           status: JobStatus.FAILED,
@@ -103,7 +100,7 @@ export const createWorkers = async (
             jobName: job.data.jobName,
             status: finishedJob.status,
             username: job.data.username,
-            link: `tools/eqtl/result_view/${finishedJob._id}`,
+            link: `tools/genebased/result_view/${finishedJob._id}`,
           },
         });
       }

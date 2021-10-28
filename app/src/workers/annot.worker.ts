@@ -1,14 +1,14 @@
 import { SandboxedJob } from 'bullmq';
 import * as fs from 'fs';
 import {
-  EqtlJobsDoc,
+  GeneBasedJobsDoc,
   JobStatus,
-  EqtlJobsModel,
-} from '../jobs/models/geneset.jobs.model';
+  GeneBasedJobsModel,
+} from '../jobs/models/genebased.jobs.model';
 import {
-  EqtlDoc,
-  EqtlModel,
-} from '../jobs/models/geneset.model';
+  GeneBasedDoc,
+  GeneBasedModel,
+} from '../jobs/models/genebased.model';
 import { spawn, spawnSync } from 'child_process';
 import connectDB from '../mongoose';
 
@@ -18,57 +18,13 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function getJobParameters(parameters: EqtlDoc) {
+function getJobParameters(parameters: GeneBasedDoc) {
   return [
     String(parameters.population),
-    String(parameters.synonnym),
-    String(parameters.Adipose_Subcutaneous),
-    String(parameters.Adipose_Visceral_Omentum),
-    String(parameters.Adrenal_Gland),
-    String(parameters.Artery_Aorta),
-    String(parameters.Artery_Coronary),
-    String(parameters.Artery_Tibial),
-    String(parameters.Brain_Amygdala),
-    String(parameters.Brain_Anterior_cingulate_cortex_BA24),
-    String(parameters.Brain_Caudate_basal_ganglia),
-    String(parameters.Brain_Cerebellar_Hemisphere),
-    String(parameters.Brain_Cerebellum),
-    String(parameters.Brain_Cortex),
-    String(parameters.Brain_Frontal_Cortex_BA9),
-    String(parameters.Brain_Hippocampus),
-    String(parameters.Brain_Hypothalamus),
-    String(parameters.Brain_Nucleus_accumbens_basal_ganglia),
-    String(parameters.Brain_Putamen_basal_ganglia),
-    String(parameters.Brain_Spinal_cord_cervical_c_1), //changed
-    String(parameters.Brain_Substantia_nigra),
-    String(parameters.Breast_Mammary_Tissue),
-    String(parameters.Cells_EBV_transformed_lymphocytes), //changed
-    String(parameters.Colon_Sigmoid),
-    String(parameters.Colon_Transverse),
-    String(parameters.Esophagus_Gastroesophageal_Junction),
-    String(parameters.Esophagus_Mucosa),
-    String(parameters.Esophagus_Muscularis),
-    String(parameters.Heart_Atrial_Appendage),
-    String(parameters.Heart_Left_Ventricle),
-    String(parameters.Liver),
-    String(parameters.Lung),
-    String(parameters.Minor_Salivary_Gland),
-    String(parameters.Muscle_Skeletal),
-    String(parameters.Nerve_Tibial),
-    String(parameters.Ovary),
-    String(parameters.Pancreas),
-    String(parameters.Pituitary),
-    String(parameters.Prostate),
-    String(parameters.Skin_Not_Sun_Exposed_Suprapubic),
-    String(parameters.Skin_Sun_Exposed_Lower_leg),
-    String(parameters.Small_Intestine_Terminal_Ileum),
-    String(parameters.Spleen),
-    String(parameters.Stomach),
-    String(parameters.Testis),
-    String(parameters.Thyroid),
-    String(parameters.Uterus),
-    String(parameters.Vagina),
-    String(parameters.Whole_Blood),
+    String(parameters.synonym),
+    String(parameters.up_window),
+    String(parameters.down_window),
+    String(parameters.tissue),
   ];
 }
 
@@ -86,14 +42,14 @@ export default async (job: SandboxedJob) => {
   await sleep(2000);
 
   //fetch job parameters from database
-  const parameters = await EqtlModel.findOne({
+  const parameters = await GeneBasedModel.findOne({
     job: job.data.jobId,
   }).exec();
-  const jobParams = await EqtlJobsModel.findById(job.data.jobId).exec();
+  const jobParams = await GeneBasedJobsModel.findById(job.data.jobId).exec();
 
   //assemble job parameters
   const pathToInputFile = `${jobParams.inputFile}`;
-  const pathToOutputDir = `/pv/analysis/${job.data.jobUID}/eqtl/output`;
+  const pathToOutputDir = `/pv/analysis/${job.data.jobUID}/genebased/output`;
   const jobParameters = getJobParameters(parameters);
   jobParameters.unshift(pathToInputFile, pathToOutputDir);
   // console.log(jobParameters);
@@ -102,7 +58,7 @@ export default async (job: SandboxedJob) => {
   fs.mkdirSync(pathToOutputDir, { recursive: true });
 
   // save in mongo database
-  await EqtlJobsModel.findByIdAndUpdate(
+  await GeneBasedJobsModel.findByIdAndUpdate(
     job.data.jobId,
     {
       status: JobStatus.RUNNING,
@@ -111,7 +67,6 @@ export default async (job: SandboxedJob) => {
   );
 
   //spawn process
-  const start = Date.now();
   const jobSpawn = spawnSync(
     './pipeline_scripts/eMAGMA.sh',
     jobParameters,
@@ -125,22 +80,33 @@ export default async (job: SandboxedJob) => {
   const error_msg = jobSpawn?.stderr?.toString();
   console.log(error_msg);
 
-  const annot = await fileOrPathExists(
-    `${pathToOutputDir}/annotation_output.hg19_multianno_full.tsv`,
+  const genes_out = await fileOrPathExists(
+    `${pathToOutputDir}/Gene_set.genes.out`,
   );
 
-  let disgenet = true;
+  const manhattan_plot = await fileOrPathExists(
+      `${pathToOutputDir}/manhattan.png`,
+  );
 
-  if (jobParams.disgenet) {
-    disgenet = false;
-    disgenet = await fileOrPathExists(`${pathToOutputDir}/disgenet.txt`);
+  const qq_plot = await fileOrPathExists(
+      `${pathToOutputDir}/qq.png`,
+  );
+
+
+  let tissues = true;
+
+  if (parameters.tissue !== "") {
+    tissues = false;
+    tissues = await fileOrPathExists(`${pathToOutputDir}/Gene_set.${parameters.tissue}.genes.out`);
   }
+  console.log(genes_out, tissues, manhattan_plot, qq_plot);
 
-  if (annot && disgenet) {
+  if (genes_out && tissues && manhattan_plot && qq_plot) {
     console.log(`${job?.data?.jobName} spawn done!`);
     return true;
   } else {
-    throw new Error(error_msg || 'Job failed to successfully complete');
+    // throw new Error(error_msg || 'Job failed to successfully complete');
+    throw new Error('Job failed to successfully complete');
   }
 
   return true;

@@ -7,7 +7,7 @@ import { UserDeletedEvent } from '../events/user-delete.event';
 
 @Injectable()
 export class UserDeletedListener extends Listener<UserDeletedEvent> {
-  queueGroupName = 'eqtl-jobs-service';
+  queueGroupName = 'genebased-jobs-service';
   readonly subject: Subjects.UserDeleted = Subjects.UserDeleted;
 
   @Inject(AuthService)

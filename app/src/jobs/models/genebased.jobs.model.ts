@@ -1,6 +1,6 @@
 import * as mongoose from 'mongoose';
 import { UserDoc } from '../../auth/models/user.model';
-import { GeneSetDoc } from './geneset.model';
+import {GeneBasedDoc} from './genebased.model';
 
 export enum JobStatus {
   COMPLETED = 'completed',
@@ -23,27 +23,30 @@ interface JobsAttrs {
 
 // An interface that describes the extra properties that a model has
 //collection level methods
-interface JobsModel extends mongoose.Model<GeneSetJobsDoc> {
-  build(attrs: JobsAttrs): GeneSetJobsDoc;
+interface JobsModel extends mongoose.Model<GeneBasedJobsDoc> {
+  build(attrs: JobsAttrs): GeneBasedJobsDoc;
 }
 
 //An interface that describes a properties that a document has
-export interface GeneSetJobsDoc extends mongoose.Document {
+export interface GeneBasedJobsDoc extends mongoose.Document {
   id: string;
   jobUID: string;
   job_name: string;
   inputFile: string;
   status: JobStatus;
   user: UserDoc;
-  outputFile: string;
+  gene_based_genes_out: string;
+  gene_based_tissue_genes_out: string;
+  manhattan_plot: string;
+  qq_plot: string;
   failed_reason: string;
   longJob: boolean;
-  eqtl_params: GeneSetDoc;
+  genebased_params: GeneBasedDoc;
   version: number;
   completionTime: Date;
 }
 
-const GeneSetJobSchema = new mongoose.Schema<GeneSetJobsDoc, JobsModel>(
+const GeneBasedJobSchema = new mongoose.Schema<GeneBasedJobsDoc, JobsModel>(
   {
     jobUID: {
       type: String,
@@ -64,7 +67,22 @@ const GeneSetJobSchema = new mongoose.Schema<GeneSetJobsDoc, JobsModel>(
       trim: true,
     },
 
-    outputFile: {
+    gene_based_genes_out: {
+      type: String,
+      trim: true,
+    },
+
+    gene_based_tissue_genes_out: {
+      type: String,
+      trim: true,
+    },
+
+    manhattan_plot: {
+      type: String,
+      trim: true,
+    },
+
+    qq_plot: {
       type: String,
       trim: true,
     },
@@ -121,35 +139,35 @@ const GeneSetJobSchema = new mongoose.Schema<GeneSetJobsDoc, JobsModel>(
 // jobsSchema.set("versionKey", "version");
 
 //collection level methods
-GeneSetJobSchema.statics.build = (attrs: JobsAttrs) => {
-  return new GeneSetJobsModel(attrs);
+GeneBasedJobSchema.statics.build = (attrs: JobsAttrs) => {
+  return new GeneBasedJobsModel(attrs);
 };
 
 //Cascade delete main job parameters when job is deleted
-GeneSetJobSchema.pre('remove', async function (next) {
+GeneBasedJobSchema.pre('remove', async function (next) {
   console.log('Job parameters being removed!');
-  await this.model('GeneSet').deleteMany({
+  await this.model('GeneBased').deleteMany({
     job: this.id,
   });
   next();
 });
 
 //reverse populate jobs with main job parameters
-GeneSetJobSchema.virtual('geneset_params', {
-  ref: 'GeneSet',
+GeneBasedJobSchema.virtual('genebased_params', {
+  ref: 'GeneBased',
   localField: '_id',
   foreignField: 'job',
   required: true,
   justOne: true,
 });
 
-GeneSetJobSchema.set('versionKey', 'version');
+GeneBasedJobSchema.set('versionKey', 'version');
 
 //create mongoose model
-const GeneSetJobsModel = mongoose.model<GeneSetJobsDoc, JobsModel>(
-  'GeneSetJob',
-  GeneSetJobSchema,
-  'genesetjobs',
+const GeneBasedJobsModel = mongoose.model<GeneBasedJobsDoc, JobsModel>(
+  'GeneBasedJob',
+  GeneBasedJobSchema,
+  'genebasedjobs',
 );
 
-export { GeneSetJobsModel };
+export { GeneBasedJobsModel };

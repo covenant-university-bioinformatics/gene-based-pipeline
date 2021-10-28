@@ -20,7 +20,8 @@
 
 set -x	## To debug
 
-binary_dir="/mnt/d/eqtl/binary"
+#binary_dir="/mnt/d/genebased/binary"
+binary_dir="/local/datasets/genebased"
 
 gwas_summary=$1;
 output_dir=$2;

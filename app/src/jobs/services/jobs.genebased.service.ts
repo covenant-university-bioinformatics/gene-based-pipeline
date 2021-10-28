@@ -6,21 +6,21 @@ import {
 } from '@nestjs/common';
 import { CreateJobDto } from '../dto/create-job.dto';
 import {
-  GeneSetJobsDoc,
-  GeneSetJobsModel,
+  GeneBasedJobsDoc,
+  GeneBasedJobsModel,
   JobStatus,
-} from '../models/geneset.jobs.model';
-import { GeneSetModel } from '../models/geneset.model';
-import { GeneSetJobQueue } from '../../jobqueue/queue/geneset.queue';
+} from '../models/genebased.jobs.model';
+import { GeneBasedModel } from '../models/genebased.model';
+import { GeneBasedJobQueue } from '../../jobqueue/queue/genebased.queue';
 import { UserDoc } from '../../auth/models/user.model';
 import { deleteFileorFolder } from '../../utils/utilityfunctions';
 import { GetJobsDto } from '../dto/getjobs.dto';
 
 @Injectable()
-export class JobsGeneSetService {
+export class JobsGeneBasedService {
   constructor(
-    @Inject(GeneSetJobQueue)
-    private jobQueue: GeneSetJobQueue,
+    @Inject(GeneBasedJobQueue)
+    private jobQueue: GeneBasedJobQueue,
   ) {}
 
   async create(
@@ -30,8 +30,8 @@ export class JobsGeneSetService {
     user: UserDoc,
     totalLines: number,
   ) {
-    const session = await GeneSetJobsModel.startSession();
-    const sessionTest = await GeneSetModel.startSession();
+    const session = await GeneBasedJobsModel.startSession();
+    const sessionTest = await GeneBasedModel.startSession();
     session.startTransaction();
     sessionTest.startTransaction();
 
@@ -39,10 +39,10 @@ export class JobsGeneSetService {
       // console.log('DTO: ', createJobDto);
       const opts = { session };
       const optsTest = { session: sessionTest };
-      const longJob = true;
+      const longJob = totalLines > 100000;
 
       //save job parameters, folder path, filename in database
-      const newJob = await GeneSetJobsModel.build({
+      const newJob = await GeneBasedJobsModel.build({
         job_name: createJobDto.job_name,
         jobUID,
         inputFile: filename,
@@ -52,12 +52,12 @@ export class JobsGeneSetService {
       });
 
       //let the models be created per specific analysis
-      const eqtl = await GeneSetModel.build({
+      const genebased = await GeneBasedModel.build({
         ...createJobDto,
         job: newJob.id,
       });
 
-      await eqtl.save(optsTest);
+      await genebased.save(optsTest);
       await newJob.save(opts);
 
       //add job to queue
@@ -109,7 +109,7 @@ export class JobsGeneSetService {
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
 
-    const result = await GeneSetJobsModel.aggregate([
+    const result = await GeneBasedJobsModel.aggregate([
       { $match: { user: user._id } },
       { $sort: { [sortVariable]: -1 } },
       {
@@ -172,14 +172,14 @@ export class JobsGeneSetService {
   // }
 
   async getJobByID(id: string) {
-    return await GeneSetJobsModel.findById(id)
-      .populate('eqtl_params')
+    return await GeneBasedJobsModel.findById(id)
+      .populate('genebased_params')
       .populate('user')
       .exec();
   }
 
-  async deleteManyJobs(user: UserDoc): Promise<GeneSetJobsDoc[]> {
-    return await GeneSetJobsModel.find({ user: user._id }).exec();
+  async deleteManyJobs(user: UserDoc): Promise<GeneBasedJobsDoc[]> {
+    return await GeneBasedJobsModel.find({ user: user._id }).exec();
   }
 }
 

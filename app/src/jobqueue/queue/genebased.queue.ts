@@ -11,7 +11,7 @@ export interface WorkerJob {
 }
 
 @Injectable()
-export class GeneSetJobQueue {
+export class GeneBasedJobQueue {
   queue: Queue<WorkerJob, any, string>;
 
   constructor() {
@@ -19,6 +19,7 @@ export class GeneSetJobQueue {
       connection: config.connection,
       // limiter: { groupKey: config.limiter.groupKey },
     });
+    console.log(config);
   }
 
   async addJob(jobData: WorkerJob) {

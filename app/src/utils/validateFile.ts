@@ -310,7 +310,7 @@ export function writeImputationFile(
   });
 }
 
-export function writeGeneSetFile(
+export function writeGeneBasedFile(
   filename: string,
   output_filename: string,
   objectColumns: Partial<Column>,
@@ -326,14 +326,20 @@ export function writeGeneSetFile(
   const liner = new lineByLine(filename);
 
   let stream = fs.createWriteStream(output_filename);
-
+  const newFileDelim = '\t';
   let lineCounter = 0;
   let line;
+  //SNP	CHR	BP	P	N
   while ((line = liner.next())) {
+    if (lineCounter === 0) {
+      stream.write(
+          `SNP${newFileDelim}CHR${newFileDelim}BP${newFileDelim}P${newFileDelim}N\n`,
+      );
+    }
     if (lineCounter !== 0) {
       let lines = String(line).replace(/(\r\n|\n|\r)/gm, '');
       let lines_strings = lines.split(delimiter);
-      const newFileDelim = '\t';
+
 
       stream.write(
         `${lines_strings[objectColumns.marker_name]}${newFileDelim}${

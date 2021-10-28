@@ -20,15 +20,15 @@ import * as multer from 'multer';
 import * as fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { JobsGenesetService } from '../services/jobs.geneset.service';
+import { JobsGeneBasedService } from '../services/jobs.genebased.service';
 import { CreateJobDto } from '../dto/create-job.dto';
 import {
   deleteFileorFolder,
   fileOrPathExists,
   fileSizeMb,
 } from '../../utils/utilityfunctions';
-import {fetchLines, writeGeneSetFile} from '../../utils/validateFile';
-import { JobStatus } from '../models/geneset.jobs.model';
+import {fetchLines, writeGeneBasedFile} from '../../utils/validateFile';
+import { JobStatus } from '../models/genebased.jobs.model';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from '../../decorators/get-user.decorator';
 import { UserDoc } from '../../auth/models/user.model';
@@ -47,9 +47,9 @@ const storageOpts = multer.diskStorage({
 });
 
 @UseGuards(AuthGuard())
-@Controller('api/eqtl/jobs')
-export class JobsGeneSetController {
-  constructor(private readonly jobsService: JobsGenesetService) {}
+@Controller('api/genebased/jobs')
+export class JobsGeneBasedController {
+  constructor(private readonly jobsService: JobsGeneBasedService) {}
 
   @Post()
   @UseInterceptors(FileInterceptor('file', { storage: storageOpts }))
@@ -74,16 +74,18 @@ export class JobsGeneSetController {
       'sample_size',
     ];
 
+    //change number columns to integers
     const columns = numberColumns.map((column) => {
       return parseInt(createJobDto[column], 10);
     });
 
-    const wrongColumn = columns.some((value) => value < 1 || value > 10);
+    //check if there are wrong column numbers
+    const wrongColumn = columns.some((value) => value < 1 || value > 15);
 
     if (wrongColumn) {
       throw new BadRequestException('Column numbers must be between 0 and 10');
     }
-
+    //check if there are duplicate columns
     const duplicates = new Set(columns).size !== columns.length;
 
     if (duplicates) {
@@ -108,7 +110,7 @@ export class JobsGeneSetController {
     const filename = `/pv/analysis/${jobUID}/input/${file.filename}`;
 
     //write the exact columns needed by the analysis
-    const totalLines = writeGeneSetFile(file.path, filename, {
+    const totalLines = writeGeneBasedFile(file.path, filename, {
       marker_name: parseInt(createJobDto.marker_name, 10) - 1,
       chr: parseInt(createJobDto.chromosome, 10) - 1,
       p: parseInt(createJobDto.p_value, 10) - 1,
@@ -145,7 +147,7 @@ export class JobsGeneSetController {
     return this.jobsService.findAll(jobsDto, user);
   }
 
-  @Get('test')
+  @Get('/test')
   test(@Param('id') id: string) {
     return {
       success: true,
@@ -162,7 +164,7 @@ export class JobsGeneSetController {
     return job;
   }
 
-  @Get('/output/:id/:file')
+  @Get('/output/:id/:file')//file is the name saved in the database
   async getOutput(
     @Param('id') id: string,
     @Param('file') file_key: string,

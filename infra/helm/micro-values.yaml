@@ -88,7 +88,7 @@ environment:
     valueFrom:
       secretKeyRef:
         name: mongo-secret
-        key: mongo-eqtl-db
+        key: mongo-geneset-db
   - name: MONGODB_PODNAME
     value: pgwas-mongo
 

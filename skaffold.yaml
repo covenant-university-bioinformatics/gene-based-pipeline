@@ -3,19 +3,19 @@ kind: Config
 deploy:
   helm:
     releases:
-      - name: eqtl
-        chartPath: .\dev_depl\helm\
+      - name: genebased
+        chartPath: .\infra\helm\
         valuesFiles:
-          - .\dev_depl\helm\values.yaml
+          - .\infra\helm\values.yaml
         artifactOverrides:
-          image: cubrenig/pgwaseqtl
+          image: cubrenig/pgwasgenebased
 
 build:
   local:
     push: false
     concurrency: 5
   artifacts:
-    - image: cubrenig/pgwaseqtl
+    - image: cubrenig/pgwasgenebased
       context: app
       docker:
         dockerfile: Dockerfile.dev
