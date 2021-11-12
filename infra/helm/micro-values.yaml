@@ -103,7 +103,7 @@ volumes:
     name:
     existing_claim: analysis-storage
     mountPath: /pv/analysis
-    size: 200Gi
+    size: 500Gi
     class: nfs-client
     accessModes:
       - ReadWriteMany
@@ -120,8 +120,8 @@ volumes:
     enabled: true
     nfs:
       - name: nfspgwas
-        server: 207.154.231.244
-        path: /mnt/volume_fra1_03
+        server: 192.168.10.3
+        path: /mnt/cubrestore/gwas
         mountPath: /local/datasets
 
 #  configMaps:
@@ -146,10 +146,10 @@ ingress:
 ##
 resources:
   limits:
-    cpu: 1800m
+    cpu: 1000m
     memory: 2000Mi
   requests:
-    cpu: 1800m
+    cpu: 1000m
     memory: 2000Mi
 
 enableInitContainers: false
