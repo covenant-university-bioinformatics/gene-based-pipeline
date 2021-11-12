@@ -88,7 +88,7 @@ environment:
     valueFrom:
       secretKeyRef:
         name: mongo-secret
-        key: mongo-geneset-db
+        key: mongo-genebased-db
   - name: MONGODB_PODNAME
     value: pgwas-mongo
 
