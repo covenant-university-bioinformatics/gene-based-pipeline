@@ -35,7 +35,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
           script: |
-            helm upgrade gene_based ${{ secrets.HOME_DIR }}/files/dist/gene_based/infra/helm/ --install --wait --set image=cubrenig/pgwasgene_based:$GITHUB_SHA --values=${{ secrets.HOME_DIR }}/files/dist/gene_based/infra/helm/micro-values.yaml
+            helm upgrade genebased ${{ secrets.HOME_DIR }}/files/dist/gene_based/infra/helm/ --install --wait --set image=cubrenig/pgwasgene_based:$GITHUB_SHA --values=${{ secrets.HOME_DIR }}/files/dist/gene_based/infra/helm/micro-values.yaml
 #      - uses: digitalocean/action-doctl@v2
 #        with:
 #          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
