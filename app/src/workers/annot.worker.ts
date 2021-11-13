@@ -78,7 +78,7 @@ export default async (job: SandboxedJob) => {
   console.log('=====================================');
   console.log('Spawn error log');
   const error_msg = jobSpawn?.stderr?.toString();
-  console.log(error_msg);
+  // console.log(error_msg);
 
   const genes_out = await fileOrPathExists(
     `${pathToOutputDir}/Gene_set.genes.out`,
@@ -105,8 +105,8 @@ export default async (job: SandboxedJob) => {
     console.log(`${job?.data?.jobName} spawn done!`);
     return true;
   } else {
-    // throw new Error(error_msg || 'Job failed to successfully complete');
-    throw new Error('Job failed to successfully complete');
+    throw new Error(error_msg || 'Job failed to successfully complete');
+    // throw new Error('Job failed to successfully complete');
   }
 
   return true;
