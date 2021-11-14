@@ -21,7 +21,7 @@ RUN chmod 775 pipeline_scripts/eMAGMA.sh
 #install R and packages
 RUN apt update
 RUN apt-get install -y r-base
-#RUN apt-get install -y -qq r-cran-ggplot2
+RUN apt-get install -y -qq r-cran-qqman
 
 #remove windows line endings
 RUN apt-get install dos2unix
