@@ -1,6 +1,6 @@
 import * as mongoose from 'mongoose';
 import { UserDoc } from '../../auth/models/user.model';
-import {GeneBasedDoc} from './genebased.model';
+import { GeneBasedDoc } from './genebased.model';
 
 export enum JobStatus {
   COMPLETED = 'completed',
@@ -16,7 +16,8 @@ interface JobsAttrs {
   jobUID: string;
   job_name: string;
   status: JobStatus;
-  user: string;
+  user?: string;
+  email?: string;
   inputFile: string;
   longJob: boolean;
 }
@@ -34,7 +35,8 @@ export interface GeneBasedJobsDoc extends mongoose.Document {
   job_name: string;
   inputFile: string;
   status: JobStatus;
-  user: UserDoc;
+  user?: UserDoc;
+  email?: string;
   gene_based_genes_out: string;
   gene_based_tissue_genes_out: string;
   manhattan_plot: string;
@@ -114,7 +116,10 @@ const GeneBasedJobSchema = new mongoose.Schema<GeneBasedJobsDoc, JobsModel>(
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
-      required: true,
+    },
+    email: {
+      type: String,
+      trim: true,
     },
     version: {
       type: Number,

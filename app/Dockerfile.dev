@@ -6,11 +6,9 @@ WORKDIR /app
 
 COPY package.json ./
 
-#COPY yarn.lock ./
+#RUN npm install -g @nestjs/cli
 
-RUN yarn add @nestjs/cli --verbose
-
-RUN yarn install
+RUN npm install
 
 COPY ./ ./
 
@@ -34,4 +32,4 @@ RUN dos2unix pipeline_scripts/eMAGMA.sh
 #RUN dos2unix pipeline_scripts/plots.R
 
 #RUN yarn run build
-CMD [ "yarn", "run", "start:dev" ]
+CMD [ "npm", "run", "start:dev" ]

@@ -11,8 +11,8 @@ import {
 } from '../jobs/models/genebased.model';
 import { spawn, spawnSync } from 'child_process';
 import connectDB from '../mongoose';
+import {fileOrPathExists} from "@cubrepgwas/pgwascommon";
 
-import { fileOrPathExists } from '../utils/utilityfunctions';
 function sleep(ms) {
   console.log('sleeping');
   return new Promise((resolve) => setTimeout(resolve, ms));
