@@ -113,6 +113,9 @@ volumes:
       - name: humandb
         path: /run/desktop/mnt/host/d/genebased/binary
         mountPath: /local/datasets/genebased
+      - name: testfiles
+        path: /run/desktop/mnt/host/c/Users/daref/Documents/NodeBackend/pgwas_test_files
+        mountPath: /local/datasets/data
 
   network:
     enabled: false

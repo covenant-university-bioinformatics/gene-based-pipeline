@@ -4,7 +4,7 @@ import {
   MaxLength,
   MinLength,
   IsEnum,
-  IsNotEmpty, IsOptional, IsEmail,
+  IsNotEmpty, IsOptional, IsEmail, IsBooleanString,
 } from 'class-validator';
 import {Populations, SynonymousSNPS} from "../models/genebased.model";
 
@@ -17,6 +17,9 @@ export class CreateJobDto {
   @IsOptional()
   @IsEmail()
   email: string;
+
+  @IsBooleanString()
+  useTest: string;
 
   @IsNumberString()
   marker_name: string;
