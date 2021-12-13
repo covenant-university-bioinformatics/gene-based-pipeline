@@ -38,7 +38,7 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           envs: SHA
           script: |
-            helm upgrade genebased ${{ secrets.HOME_DIR }}/files/dist/gene_based/infra/helm/ --install --wait --set image=cubrenig/pgwasgbased:SHA --values=${{ secrets.HOME_DIR }}/files/dist/gene_based/infra/helm/micro-values.yaml
+            helm upgrade genebased ${{ secrets.HOME_DIR }}/files/dist/gene_based/infra/helm/ --install --wait --set image=cubrenig/pgwasgbased:$SHA --values=${{ secrets.HOME_DIR }}/files/dist/gene_based/infra/helm/micro-values.yaml
 #      - uses: digitalocean/action-doctl@v2
 #        with:
 #          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
