@@ -19,6 +19,12 @@ export enum SynonymousSNPS {
 //Interface that describe the properties that are required to create a new job
 interface GeneBasedAttrs {
   job: string;
+  useTest: string;
+  marker_name: string;
+  chromosome: string;
+  position: string;
+  p_value: string;
+  sample_size: string;
   population: Populations;
   synonym: SynonymousSNPS;
   up_window: string;
@@ -36,6 +42,12 @@ interface GeneBasedModel extends mongoose.Model<GeneBasedDoc> {
 export interface GeneBasedDoc extends mongoose.Document {
   id: string;
   version: number;
+  useTest: boolean;
+  marker_name: number;
+  chromosome: number;
+  position: number;
+  p_value: number;
+  sample_size: number;
   population: Populations;
   synonym: SynonymousSNPS;
   up_window: string;
@@ -45,6 +57,30 @@ export interface GeneBasedDoc extends mongoose.Document {
 
 const GeneBasedSchema = new mongoose.Schema<GeneBasedDoc, GeneBasedModel>(
   {
+    useTest: {
+      type: Boolean,
+      trim: true,
+    },
+    marker_name: {
+      type: Number,
+      trim: true,
+    },
+    chromosome: {
+      type: Number,
+      trim: true,
+    },
+    position: {
+      type: Number,
+      trim: true,
+    },
+    p_value: {
+      type: Number,
+      trim: true,
+    },
+    sample_size: {
+      type: Number,
+      trim: true,
+    },
     population: {
       type: String,
       trim: true,
