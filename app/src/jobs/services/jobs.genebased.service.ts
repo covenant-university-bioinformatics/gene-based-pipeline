@@ -26,9 +26,9 @@ import {
 } from "@cubrepgwas/pgwascommon";
 
 //production
-// const testPath = '/local/datasets/pgwas_test_files/magma/UK_pval_0.05-N.txt';
+const testPath = '/local/datasets/pgwas_test_files/magma/UK_pval_0.05-N.txt';
 //development
-const testPath = '/local/datasets/data/magma/UK_pval_0.05-N.txt';
+// const testPath = '/local/datasets/data/magma/UK_pval_0.05-N.txt';
 
 @Injectable()
 export class JobsGeneBasedService {

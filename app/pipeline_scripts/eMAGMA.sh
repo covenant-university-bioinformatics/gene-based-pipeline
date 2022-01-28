@@ -22,10 +22,10 @@ set -x	## To debug
 
 #binary_dir="/mnt/d/genebased/binary"
 #for development
-binary_dir="/local/datasets/genebased"
+#binary_dir="/local/datasets/genebased"
 
 #for production
-#binary_dir="/local/datasets/magma"
+binary_dir="/local/datasets/magma"
 
 gwas_summary=$1;
 output_dir=$2;
