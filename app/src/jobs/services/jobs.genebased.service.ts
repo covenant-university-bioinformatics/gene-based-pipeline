@@ -19,16 +19,16 @@ import * as fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import {
   deleteFileorFolder,
-  fileOrPathExists, findAllJobs,
+  fileOrPathExists, fileSizeMb, findAllJobs,
   removeManyUserJobs,
   removeUserJob,
   writeGeneBasedFile
 } from "@cubrepgwas/pgwascommon";
 
 //production
-const testPath = '/local/datasets/pgwas_test_files/magma/emagma_test.txt';
+// const testPath = '/local/datasets/pgwas_test_files/magma/UK_pval_0.05-N.txt';
 //development
-// const testPath = '/local/datasets/data/magma/emagma_test.txt';
+const testPath = '/local/datasets/data/magma/UK_pval_0.05-N.txt';
 
 @Injectable()
 export class JobsGeneBasedService {
@@ -100,13 +100,6 @@ export class JobsGeneBasedService {
       throw new InternalServerErrorException();
     }
 
-    let filename;
-
-    if (createJobDto.useTest === 'false') {
-      filename = `/pv/analysis/${jobUID}/input/${file.filename}`;
-    } else {
-      filename = `/pv/analysis/${jobUID}/input/test.txt`;
-    }
 
     const session = await GeneBasedJobsModel.startSession();
     const sessionTest = await GeneBasedModel.startSession();
@@ -120,22 +113,8 @@ export class JobsGeneBasedService {
 
       const filepath = createJobDto.useTest === 'true' ? testPath : file.path;
 
-      //write the exact columns needed by the analysis
-      const totalLines = writeGeneBasedFile(filepath, filename, {
-        marker_name: parseInt(createJobDto.marker_name, 10) - 1,
-        chr: parseInt(createJobDto.chromosome, 10) - 1,
-        p: parseInt(createJobDto.p_value, 10) - 1,
-        n: parseInt(createJobDto.sample_size, 10) - 1,
-        pos: parseInt(createJobDto.position, 10) - 1,
-      });
-
-      if (createJobDto.useTest === 'false') {
-        deleteFileorFolder(file.path).then(() => {
-          // console.log('deleted');
-        });
-      }
-
-      const longJob = totalLines > 100000;
+      const fileSize = await fileSizeMb(filepath);
+      const longJob = fileSize > 0.5;
 
       let newJob;
 
@@ -144,7 +123,7 @@ export class JobsGeneBasedService {
         newJob = await GeneBasedJobsModel.build({
           job_name: createJobDto.job_name,
           jobUID,
-          inputFile: filename,
+          inputFile: filepath,
           status: JobStatus.QUEUED,
           user: user.id,
           longJob,
@@ -155,7 +134,7 @@ export class JobsGeneBasedService {
         newJob = await GeneBasedJobsModel.build({
           job_name: createJobDto.job_name,
           jobUID,
-          inputFile: filename,
+          inputFile: filepath,
           status: JobStatus.QUEUED,
           email: createJobDto.email,
           longJob,

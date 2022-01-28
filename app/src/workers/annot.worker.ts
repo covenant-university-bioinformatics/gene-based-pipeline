@@ -5,13 +5,14 @@ import {
   JobStatus,
   GeneBasedJobsModel,
 } from '../jobs/models/genebased.jobs.model';
-import {
-  GeneBasedDoc,
-  GeneBasedModel,
-} from '../jobs/models/genebased.model';
+import { GeneBasedDoc, GeneBasedModel } from '../jobs/models/genebased.model';
 import { spawn, spawnSync } from 'child_process';
-import connectDB from '../mongoose';
-import {fileOrPathExists} from "@cubrepgwas/pgwascommon";
+import connectDB, { closeDB } from '../mongoose';
+import {
+  deleteFileorFolder,
+  fileOrPathExists,
+  writeGeneBasedFile,
+} from '@cubrepgwas/pgwascommon';
 
 function sleep(ms) {
   console.log('sleeping');
@@ -47,8 +48,35 @@ export default async (job: SandboxedJob) => {
   }).exec();
   const jobParams = await GeneBasedJobsModel.findById(job.data.jobId).exec();
 
+  //create input file and folder
+  let filename;
+
+  //extract file name
+  const name = jobParams.inputFile.split(/(\\|\/)/g).pop();
+
+  if (parameters.useTest === false) {
+    filename = `/pv/analysis/${jobParams.jobUID}/input/${name}`;
+  } else {
+    filename = `/pv/analysis/${jobParams.jobUID}/input/test.txt`;
+  }
+
+  //write the exact columns needed by the analysis
+  writeGeneBasedFile(jobParams.inputFile, filename, {
+    marker_name: parameters.marker_name - 1,
+    chr: parameters.chromosome - 1,
+    p: parameters.p_value - 1,
+    n: parameters.sample_size - 1,
+    pos: parameters.position - 1,
+  });
+
+  if (parameters.useTest === false) {
+    deleteFileorFolder(jobParams.inputFile).then(() => {
+      // console.log('deleted');
+    });
+  }
+
   //assemble job parameters
-  const pathToInputFile = `${jobParams.inputFile}`;
+  const pathToInputFile = filename;
   const pathToOutputDir = `/pv/analysis/${job.data.jobUID}/genebased/output`;
   const jobParameters = getJobParameters(parameters);
   jobParameters.unshift(pathToInputFile, pathToOutputDir);
@@ -66,6 +94,7 @@ export default async (job: SandboxedJob) => {
     { new: true },
   );
 
+  await sleep(3000);
   //spawn process
   const jobSpawn = spawnSync(
     './pipeline_scripts/eMAGMA.sh',
@@ -85,19 +114,19 @@ export default async (job: SandboxedJob) => {
   );
 
   const manhattan_plot = await fileOrPathExists(
-      `${pathToOutputDir}/manhattan.png`,
+    `${pathToOutputDir}/manhattan.png`,
   );
 
-  const qq_plot = await fileOrPathExists(
-      `${pathToOutputDir}/qq.png`,
-  );
+  const qq_plot = await fileOrPathExists(`${pathToOutputDir}/qq.png`);
 
-
+  closeDB();
   let tissues = true;
 
-  if (parameters.tissue !== "") {
+  if (parameters.tissue !== '') {
     tissues = false;
-    tissues = await fileOrPathExists(`${pathToOutputDir}/Gene_set.${parameters.tissue}.genes.out`);
+    tissues = await fileOrPathExists(
+      `${pathToOutputDir}/Gene_set.${parameters.tissue}.genes.out`,
+    );
   }
   console.log(genes_out, tissues, manhattan_plot, qq_plot);
 
